@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ibratin — Gestor de Regras por Campanha</title>
+<title>Ibratin — Gestor de Regras de Metas por Campanha</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -581,6 +581,19 @@ tbody tr:last-child td { border-bottom: none; }
 .btn-onedrive { background:#0078d4; color:#fff; border:none; }
 .btn-onedrive:hover:not(:disabled) { background:#106ebe; }
 .btn-onedrive:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── Modal configuração OneDrive ─────────────────────── */
+.od-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:8000; display:flex; align-items:center; justify-content:center; }
+.od-modal { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px 32px; width:min(480px,92vw); box-shadow:0 8px 32px rgba(0,0,0,.4); }
+.od-modal h3 { margin:0 0 6px; font-size:16px; color:var(--text); }
+.od-modal p  { margin:0 0 20px; font-size:12px; color:var(--muted); line-height:1.5; }
+.od-field { display:flex; flex-direction:column; gap:4px; margin-bottom:14px; }
+.od-field label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.od-field input { background:var(--input-bg,#1a1d27); border:1px solid var(--border); border-radius:6px; padding:8px 10px; color:var(--text); font-size:13px; font-family:monospace; }
+.od-field input:focus { outline:none; border-color:var(--accent); }
+.od-field .od-hint { font-size:11px; color:var(--muted); margin-top:2px; }
+.od-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+.od-status { font-size:11px; color:var(--success); margin-top:8px; text-align:right; min-height:16px; }
 </style>
 
 <!-- MSAL.js v2.38.3 — inline, sem dependência de CDN -->
@@ -670,7 +683,8 @@ var st,ct,ut,lt,dt,ht,pt,gt,ft,mt=function(){function t(e,t,r){this.networkInter
   <div style="display:flex;gap:8px;align-items:center">
     <span class="header-badge" id="badge-total">0 campanhas</span>
     <button class="btn btn-ghost-white btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
-    <button class="btn btn-onedrive btn-sm" id="btn-od-header" onclick="publicarOneDrive()" title="Substitui TB_REGRAS_CAMPANHAS.csv no OneDrive">☁️ Publicar OneDrive</button>
+    <button class="btn btn-onedrive btn-sm" id="btn-od-header" onclick="publicarOneDrive()" title="Substitui o arquivo CSV no OneDrive">☁️ Publicar OneDrive</button>
+    <button class="btn btn-ghost-white btn-sm" onclick="abrirODConfig()" title="Configurar credenciais OneDrive">⚙️</button>
     <button class="btn btn-atualizar btn-sm" onclick="document.getElementById('input-dims-json').click()" title="Importe dims_ibratin.json gerado pelo exportar_dims_pbi.py">
       ↻ Atualizar Dados
     </button>
@@ -868,7 +882,8 @@ var st,ct,ut,lt,dt,ht,pt,gt,ft,mt=function(){function t(e,t,r){this.networkInter
         <span>📋 Campanhas Cadastradas</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
-          <button class="btn btn-onedrive btn-sm" id="btn-od-lista" onclick="publicarOneDrive()" title="Substitui TB_REGRAS_CAMPANHAS.csv no OneDrive">☁️ Publicar OneDrive</button>
+          <button class="btn btn-onedrive btn-sm" id="btn-od-lista" onclick="publicarOneDrive()" title="Substitui o arquivo CSV no OneDrive">☁️ Publicar OneDrive</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirODConfig()" title="Configurar credenciais OneDrive">⚙️</button>
           <button class="btn btn-ghost btn-sm" onclick="excluirTodas()" style="color:var(--danger)">🗑 Excluir todas</button>
         </div>
       </div>
@@ -11445,26 +11460,63 @@ async function exportarTudoCompacto() {
 //   3. Redirect URI (SPA): URL onde este HTML está hospedado (ex: SharePoint ou localhost)
 //   4. Copiar "Application (client) ID" e "Directory (tenant) ID" abaixo
 //   5. API permissions → Add → Microsoft Graph → Delegated → Files.ReadWrite → Grant consent
-// ─────────────────────────────────────────────────────────────────────────────
-const ONEDRIVE_CFG = {
-  clientId:  'ff043eff-316a-431d-b2e7-b6eb31996bb7',    // Application (client) ID do Azure AD
-  tenantId:  'c09a88e8-0f25-4f60-b58a-30b479a1e47f',    // Directory (tenant) ID do Azure AD
-  filePath:  'PowerBI/Projetos/Ibratin/Campanhas/TB_REGRAS_CAMPANHAS.csv',
-};
+// ─── OneDrive: config em localStorage (nada sensível no código-fonte) ────────
+function getODConfig() {
+  return {
+    clientId: localStorage.getItem('ib_od_cid') || '',
+    tenantId: localStorage.getItem('ib_od_tid') || '',
+    filePath: localStorage.getItem('ib_od_fp')  || '',
+  };
+}
+function salvarODConfig({ clientId, tenantId, filePath }) {
+  localStorage.setItem('ib_od_cid', clientId.trim());
+  localStorage.setItem('ib_od_tid', tenantId.trim());
+  localStorage.setItem('ib_od_fp',  filePath.trim());
+  _msalApp = null; // força reinicialização com novo clientId/tenantId
+}
+
+// ─── Modal de configuração ────────────────────────────────────────────────────
+function abrirODConfig(onSalvo) {
+  const cfg = getODConfig();
+  document.getElementById('od-inp-clientid').value = cfg.clientId;
+  document.getElementById('od-inp-tenantid').value = cfg.tenantId;
+  document.getElementById('od-inp-filepath').value = cfg.filePath;
+  document.getElementById('od-config-status').textContent = cfg.clientId ? '✓ Configuração existente carregada' : '';
+  document.getElementById('od-overlay').style.display = 'flex';
+  document.getElementById('od-overlay')._onSalvo = onSalvo || null;
+}
+function fecharODConfig() {
+  document.getElementById('od-overlay').style.display = 'none';
+}
+function confirmarODConfig() {
+  const clientId = document.getElementById('od-inp-clientid').value.trim();
+  const tenantId = document.getElementById('od-inp-tenantid').value.trim();
+  const filePath = document.getElementById('od-inp-filepath').value.trim();
+  if (!clientId || !tenantId || !filePath) {
+    document.getElementById('od-config-status').style.color = 'var(--danger)';
+    document.getElementById('od-config-status').textContent = 'Preencha todos os campos.';
+    return;
+  }
+  salvarODConfig({ clientId, tenantId, filePath });
+  const cb = document.getElementById('od-overlay')._onSalvo;
+  fecharODConfig();
+  toast('Configuração salva no navegador.', 'ok');
+  if (typeof cb === 'function') cb();
+}
 
 let _msalApp = null;
 
 async function _getMsal() {
   if (_msalApp) return _msalApp;
+  const cfg = getODConfig();
   _msalApp = new msal.PublicClientApplication({
     auth: {
-      clientId:    ONEDRIVE_CFG.clientId,
-      authority:   `https://login.microsoftonline.com/${ONEDRIVE_CFG.tenantId}`,
+      clientId:    cfg.clientId,
+      authority:   `https://login.microsoftonline.com/${cfg.tenantId}`,
       redirectUri: window.location.href.split('?')[0].split('#')[0],
     },
     cache: { cacheLocation: 'sessionStorage' },
   });
-  // v2.x: initialize() não existe, construtor já inicializa
   return _msalApp;
 }
 
@@ -11493,12 +11545,12 @@ function _setBtnsOneDrive(label, disabled) {
 
 async function publicarOneDrive() {
   if (typeof msal === 'undefined') {
-    toast('MSAL não carregou. Verifique conexão com a internet, recarregue com Ctrl+Shift+R e tente novamente.', 'err');
-    console.error('[publicarOneDrive] msal global não definido — script CDN não carregou');
+    toast('MSAL não carregou. Recarregue com Ctrl+Shift+R e tente novamente.', 'err');
     return;
   }
-  if (ONEDRIVE_CFG.clientId === 'SEU_CLIENT_ID_AQUI') {
-    toast('Configure clientId e tenantId no código (ONEDRIVE_CFG) antes de usar.', 'err');
+  const cfg = getODConfig();
+  if (!cfg.clientId || !cfg.tenantId || !cfg.filePath) {
+    abrirODConfig(publicarOneDrive); // abre config e, ao salvar, executa de novo
     return;
   }
   if (!campanhas.length) { toast('Nenhuma campanha cadastrada.', 'err'); return; }
@@ -11516,7 +11568,7 @@ async function publicarOneDrive() {
     const token = await _getGraphToken();
     _setBtnsOneDrive('⏳ Enviando…', true);
 
-    const url  = `https://graph.microsoft.com/v1.0/me/drive/root:/${ONEDRIVE_CFG.filePath}:/content`;
+    const url  = `https://graph.microsoft.com/v1.0/me/drive/root:/${cfg.filePath}:/content`;
     const resp = await fetch(url, {
       method:  'PUT',
       headers: {
@@ -11726,5 +11778,33 @@ function _aplicarDims(data) {
 // ════════════════════════════
 init();
 </script>
+
+<!-- Modal configuração OneDrive -->
+<div id="od-overlay" class="od-overlay" style="display:none" onclick="if(event.target===this)fecharODConfig()">
+  <div class="od-modal" onclick="event.stopPropagation()">
+    <h3>⚙️ Configuração OneDrive</h3>
+    <p>As credenciais são salvas apenas neste navegador (localStorage).<br>Nunca aparecem no código-fonte da aplicação.</p>
+    <div class="od-field">
+      <label>Client ID (Azure AD)</label>
+      <input id="od-inp-clientid" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off">
+      <span class="od-hint">Application (client) ID do App Registration</span>
+    </div>
+    <div class="od-field">
+      <label>Tenant ID (Azure AD)</label>
+      <input id="od-inp-tenantid" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off">
+      <span class="od-hint">Directory (tenant) ID da organização</span>
+    </div>
+    <div class="od-field">
+      <label>Caminho no OneDrive</label>
+      <input id="od-inp-filepath" type="text" placeholder="PowerBI/Pasta/arquivo.csv" autocomplete="off">
+      <span class="od-hint">Caminho a partir da raiz do OneDrive, incluindo o nome do arquivo</span>
+    </div>
+    <div class="od-status" id="od-config-status"></div>
+    <div class="od-actions">
+      <button class="btn btn-ghost btn-sm" onclick="fecharODConfig()">Cancelar</button>
+      <button class="btn btn-onedrive btn-sm" onclick="confirmarODConfig()">Salvar configuração</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
