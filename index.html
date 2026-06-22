@@ -583,8 +583,14 @@ tbody tr:last-child td { border-bottom: none; }
 .btn-onedrive:disabled { opacity:.5; cursor:not-allowed; }
 </style>
 
-<!-- MSAL.js v2 — autenticação Microsoft para upload OneDrive -->
-<script src="https://unpkg.com/@azure/msal-browser@2.38.3/dist/msal-browser.min.js"></script>
+<!-- MSAL.js v2 — CDN oficial Microsoft (primário) + jsDelivr (fallback) -->
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"
+        crossorigin="anonymous"></script>
+<script>
+  if (typeof msal === 'undefined') {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.38.3/dist/msal-browser.min.js"><\/script>');
+  }
+</script>
 </head>
 <body>
 
@@ -11420,6 +11426,11 @@ function _setBtnsOneDrive(label, disabled) {
 }
 
 async function publicarOneDrive() {
+  if (typeof msal === 'undefined') {
+    toast('MSAL não carregou. Verifique conexão com a internet, recarregue com Ctrl+Shift+R e tente novamente.', 'err');
+    console.error('[publicarOneDrive] msal global não definido — script CDN não carregou');
+    return;
+  }
   if (ONEDRIVE_CFG.clientId === 'SEU_CLIENT_ID_AQUI') {
     toast('Configure clientId e tenantId no código (ONEDRIVE_CFG) antes de usar.', 'err');
     return;
