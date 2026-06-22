@@ -11364,10 +11364,12 @@ async function exportarTudoCompacto() {
   }
 }
 
-// ─── OneDrive via Power Automate HTTP trigger ─────────────────────────────────
-// Único valor a configurar: URL gerada pelo fluxo no make.powerautomate.com
-// Nenhum usuário precisa de credenciais — o fluxo usa a conta do administrador
-const PA_FLOW_URL = 'https://n8n.xperiun.com/webhook-test/ibratin-campanhas';
+// ─── OneDrive via N8N webhook ─────────────────────────────────────────────────
+// Único valor a configurar: URL do webhook N8N (production, não test)
+// Nenhum usuário precisa de credenciais — o N8N usa a conta do administrador
+const N8N_WEBHOOK_URL = 'https://n8n.xperiun.com/webhook/ibratin-campanhas';
+// ↑ Trocar pelo webhook de produção quando o workflow estiver ativo:
+//   https://n8n.xperiun.com/webhook/ibratin-campanhas
 
 function _setBtnsOneDrive(label, disabled) {
   ['btn-od-header', 'btn-od-lista'].forEach(id => {
@@ -11379,8 +11381,8 @@ function _setBtnsOneDrive(label, disabled) {
 }
 
 async function publicarOneDrive() {
-  if (!PA_FLOW_URL || PA_FLOW_URL === 'https://n8n.xperiun.com/webhook-test/ibratin-campanhas') {
-    toast('URL do Power Automate não configurada. Contate o administrador do sistema.', 'err');
+  if (!N8N_WEBHOOK_URL) {
+    toast('URL do webhook N8N não configurada. Contate o administrador do sistema.', 'err');
     return;
   }
   if (!campanhas.length) { toast('Nenhuma campanha cadastrada.', 'err'); return; }
@@ -11395,11 +11397,11 @@ async function publicarOneDrive() {
       }
     }
 
-    const resp = await fetch(PA_FLOW_URL, {
+    const resp = await fetch(N8N_WEBHOOK_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        conteudo: '﻿' + csv,           // BOM UTF-8 para Excel reconhecer
+        conteudo: '﻿' + csv,       // BOM UTF-8 para Excel reconhecer
         arquivo:  'TB_REGRAS_CAMPANHAS.csv'
       }),
     });
