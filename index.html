@@ -473,6 +473,7 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .campanha-card:hover { border-color: var(--ib-blue); background: var(--ib-blue-lt); }
 .campanha-name { font-weight: 700; font-size: 13px; }
+.campanha-cod  { display:inline-block; font-size:10px; font-weight:600; color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); border:1px solid color-mix(in srgb,var(--accent) 30%,transparent); border-radius:4px; padding:1px 6px; margin-top:3px; letter-spacing:.03em; }
 .campanha-desc { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .campanha-btns { display: flex; gap: 4px; flex-shrink: 0; }
 .meses-str { font-size: 11px; color: var(--muted); margin-top: 6px; }
@@ -634,7 +635,7 @@ tbody tr:last-child td { border-bottom: none; }
         <button class="btn btn-ghost btn-sm" id="btn-salvar-lbl" onclick="limpar()">↺ Limpar</button>
       </div>
       <div class="edit-mode-banner" id="edit-mode-banner">
-        ✏️ Editando: <span class="edit-nome" id="edit-mode-nome"></span>
+        ✏️ Editando: <span class="edit-nome" id="edit-mode-nome"></span><span id="edit-mode-cod" style="font-size:11px;opacity:.75;margin-left:6px"></span>
         <button class="btn-cancel-edit" onclick="limpar()">✕ Cancelar</button>
       </div>
       <div class="card-body">
@@ -10943,6 +10944,7 @@ function editarCampanha(idx) {
   // Banner de modo edição
   const banner = document.getElementById('edit-mode-banner');
   document.getElementById('edit-mode-nome').textContent = c.nome;
+  document.getElementById('edit-mode-cod').textContent  = c.cod ? `[${c.cod}]` : '';
   banner.style.display = 'flex';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('Campanha carregada para edição','');
@@ -11082,7 +11084,10 @@ function renderCampanhas() {
         <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
         <div style="flex:1;min-width:0">
           <div class="campanha-name">${escHtml(c.nome)}</div>
-          ${c.desc ? `<div class="campanha-desc">${escHtml(c.desc)}</div>` : ''}
+          ${(c.cod || c.desc) ? `<div style="display:flex;align-items:center;gap:6px;margin-top:3px;min-width:0">
+            ${c.cod  ? `<span class="campanha-cod">${escHtml(c.cod)}</span>` : ''}
+            ${c.desc ? `<span class="campanha-desc" style="margin-top:0;flex:1">${escHtml(c.desc)}</span>` : ''}
+          </div>` : ''}
         </div>
         <div class="campanha-btns">
           <button class="btn btn-ghost btn-sm" onclick="exportarCampanhaCompacta(${i})" title="Exportar PBI">📊</button>
