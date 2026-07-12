@@ -11633,6 +11633,29 @@ function _setBtnsOneDrive(label, disabled) {
 }
 
 
+async function _gzipBase64(str) {
+  const data   = new TextEncoder().encode(str);
+  const cs     = new CompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(data);
+  writer.close();
+  const chunks = [];
+  const reader = cs.readable.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const total = chunks.reduce((s, c) => s + c.length, 0);
+  const out   = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.length; }
+  let bin = '';
+  for (let i = 0; i < out.length; i += 8192)
+    bin += String.fromCharCode(...out.subarray(i, i + 8192));
+  return btoa(bin);
+}
+
 async function publicarOneDrive() {
   if (!N8N_WEBHOOK_URL) {
     toast('URL do webhook N8N não configurada. Contate o administrador do sistema.', 'err');
@@ -11650,14 +11673,16 @@ async function publicarOneDrive() {
       }
     }
 
-    // 1. Publica CSV expandido (para Power BI)
-    const csvRaw = '﻿' + csv;
-    console.log('[publicarOneDrive] CSV:', (csvRaw.length / 1024).toFixed(1), 'KB');
+    // 1. Publica CSV expandido (para Power BI) — comprimido com gzip para suportar arquivos grandes
+    const csvRaw  = '﻿' + csv;
+    const csvGzip = await _gzipBase64(csvRaw);
+    console.log('[publicarOneDrive] CSV:', (csvRaw.length / 1024).toFixed(1), 'KB →',
+                'comprimido:', (csvGzip.length / 1024).toFixed(1), 'KB');
 
     const resp = await fetch(N8N_WEBHOOK_URL, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ arquivo: 'TB_REGRAS_CAMPANHAS.csv', conteudo: csvRaw, formato: 'plain' }),
+      body:    JSON.stringify({ arquivo: 'TB_REGRAS_CAMPANHAS.csv', conteudo: csvGzip, formato: 'gzip+base64' }),
     });
 
     if (!resp.ok) {
