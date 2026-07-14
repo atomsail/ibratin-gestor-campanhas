@@ -11716,12 +11716,18 @@ async function _initUploadSession(arquivo) {
 }
 
 async function _uploadChunk(uploadUrl, start, end, totalSize, conteudo) {
-  const resp = await fetch(N8N_WEBHOOK_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ acao: 'chunk', uploadUrl, start, end, totalSize, conteudo }),
+  // PUT direto ao Microsoft Graph (upload session URL já autorizado, não revela caminho OneDrive)
+  const chunkBytes = _ENC.encode(conteudo);
+  const resp = await fetch(uploadUrl, {
+    method:  'PUT',
+    headers: {
+      'Content-Length': String(chunkBytes.length),
+      'Content-Range':  `bytes ${start}-${end}/${totalSize}`,
+    },
+    body: chunkBytes,
   });
-  if (!resp.ok) {
+  // 200/201 = completo, 202 = aceito (aguardando mais chunks)
+  if (resp.status !== 200 && resp.status !== 201 && resp.status !== 202) {
     const txt = await resp.text().catch(() => '');
     throw new Error(`Bloco ${start}–${end} HTTP ${resp.status}${txt ? ': ' + txt.slice(0, 120) : ''}`);
   }
