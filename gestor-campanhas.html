@@ -11693,16 +11693,20 @@ function _uploadSessionKey(arquivo) {
 }
 
 async function _initUploadSession(arquivo) {
-  const lsKey          = _uploadSessionKey(arquivo);
-  const cancelUploadUrl = localStorage.getItem(lsKey) || undefined;
+  const lsKey      = _uploadSessionKey(arquivo);
+  const cachedUrl  = localStorage.getItem(lsKey);
 
-  const body = { acao: 'init', arquivo };
-  if (cancelUploadUrl) body.cancelUploadUrl = cancelUploadUrl;
+  // Cancela sessão anterior diretamente no Microsoft Graph (sem relay N8N)
+  if (cachedUrl && cachedUrl.startsWith('https://')) {
+    try { await fetch(cachedUrl, { method: 'DELETE' }); } catch (e) {}
+    localStorage.removeItem(lsKey);
+    await new Promise(r => setTimeout(r, 1000)); // aguarda Graph processar
+  }
 
   const resp = await fetch(N8N_WEBHOOK_URL, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body:    JSON.stringify({ acao: 'init', arquivo }),
   });
   if (!resp.ok) {
     const txt = await resp.text().catch(() => '');
