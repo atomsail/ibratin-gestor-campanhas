@@ -962,6 +962,7 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
       </div>
       <div class="metas-toolbar">
         <div class="metas-anos" id="metas-anos"></div>
+        <input class="form-control" id="metas-busca-vendedor" placeholder="🔍 Vendedor (código ou nome)…" oninput="filtrarMetasVendedor(this.value)" style="max-width:240px">
         <span style="flex:1"></span>
         <button class="btn btn-primary btn-sm only-admin" id="btn-salvar-metas" onclick="salvarMetas()">💾 Salvar Metas</button>
       </div>
@@ -11758,6 +11759,17 @@ function selecionarAnoMetas(ano) {
   renderTabelaMetas();
 }
 
+// Resolve o efeito do filtro de vendedor da regra da campanha (mesma lógica de resolverDim()):
+// sem filtro (ou campanha antiga sem esse campo) = todos; básico = só o `sel`; avançado = aplicarFiltroAvancado.
+function vendedoresDaCampanha(camp) {
+  const f = camp.flt && camp.flt.vendedor;
+  if (!f) return DIM.vendedor;
+  if (f.mode === 'avancado') return aplicarFiltroAvancado(DIM.vendedor, f.adv);
+  const sel = f.sel instanceof Set ? [...f.sel] : (f.sel || []);
+  if (!sel.length) return DIM.vendedor;
+  return DIM.vendedor.filter(v => sel.includes(String(v.cd)));
+}
+
 function renderTabelaMetas() {
   const camp = campanhas.find(c => c.cod === METAS_CAMP_COD);
   if (!camp) return;
@@ -11765,15 +11777,21 @@ function renderTabelaMetas() {
   const mesesAtivos = new Set(camp.meses.filter(m => m.startsWith(String(ano))).map(m => +m.split('-')[1]));
   const readonly = !(PERFIL && PERFIL.role === 'admin');
   const dados = METAS_DADOS[ano] || {};
+  const vendedores = vendedoresDaCampanha(camp);
 
-  const thead = '<thead><tr><th class="vendedor-th">Vendedor</th>' +
+  const buscaEl = document.getElementById('metas-busca-vendedor');
+  if (buscaEl) buscaEl.value = '';
+
+  const thead = '<thead><tr><th class="vendedor-th">Vendedor</th><th>Cód.</th>' +
     METAS_MESES_NOME.map(m => `<th>${m}</th>`).join('') + '<th>Total</th></tr></thead>';
 
   const totCols = new Array(12).fill(0);
   let tbody = '<tbody>';
-  DIM.vendedor.forEach(v => {
+  vendedores.forEach(v => {
     let totalLinha = 0;
-    tbody += `<tr><td class="vendedor-cell">${escHtml(v.nome)}</td>`;
+    const buscaTexto = escHtml((String(v.cd) + ' ' + v.nome).toLowerCase());
+    tbody += `<tr data-busca-texto="${buscaTexto}"><td class="vendedor-cell">${escHtml(v.nome)}</td>` +
+      `<td style="text-align:center;color:var(--muted)">${escHtml(String(v.cd))}</td>`;
     for (let m = 1; m <= 12; m++) {
       const ativo = mesesAtivos.has(m);
       const valor = (dados[v.cd] && dados[v.cd][m]) || 0;
@@ -11793,6 +11811,15 @@ function renderTabelaMetas() {
     `<td style="text-align:right;padding:6px 8px">${grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr></tfoot>`;
 
   document.getElementById('metas-table').innerHTML = thead + tbody + tfoot;
+}
+
+// Busca por código ou nome na grade de metas — só esconde/mostra linhas já renderizadas.
+function filtrarMetasVendedor(q) {
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('#metas-table tbody tr').forEach(tr => {
+    const texto = tr.dataset.buscaTexto || '';
+    tr.style.display = !query || texto.includes(query) ? '' : 'none';
+  });
 }
 
 function onMetaInput(el) {
@@ -11884,7 +11911,7 @@ async function salvarMetas() {
   for (const anoStr of Object.keys(METAS_DADOS)) {
     const ano = +anoStr;
     const mesesAtivos = new Set(camp.meses.filter(m => m.startsWith(anoStr)).map(m => +m.split('-')[1]));
-    for (const v of DIM.vendedor) {
+    for (const v of vendedoresDaCampanha(camp)) {
       const porMes = METAS_DADOS[ano][v.cd];
       if (!porMes) continue;
       for (const mesStr of Object.keys(porMes)) {
