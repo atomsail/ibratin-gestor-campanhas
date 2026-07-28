@@ -11,8 +11,8 @@ Como usar:
     4. Recarregue gestor-campanhas.html no navegador (F5)
 
 O script atualiza gestor-campanhas.html automaticamente e tambem
-salva dims_ibratin.json como backup. O botao "Atualizar Dados"
-no HTML pode ser usado como alternativa (importa o JSON manualmente).
+salva dims_ibratin.json como backup (para conferencia caso o patch
+automatico falhe).
 
 Sem dependencias extras alem de Python 3.8+.
 """
@@ -441,9 +441,9 @@ def main():
         print("    Recarregue gestor-campanhas.html no navegador (F5).")
         print("    Os filtros ja estao com os dados reais do Power BI.")
     else:
-        print("  Proximo passo:")
-        print("    Abra gestor-campanhas.html, clique em 'Atualizar Dados'")
-        print("    e selecione dims_ibratin.json.")
+        print("  Falha ao aplicar o patch automatico.")
+        print(f"  Verifique se {HTML_PATH} existe e rode o script novamente.")
+        print(f"  (JSON com os dados ficou salvo em {OUTPUT_JSON} para conferencia.)")
 
 
 if __name__ == "__main__":

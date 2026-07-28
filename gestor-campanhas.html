@@ -85,22 +85,6 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
-.btn-atualizar {
-  background: var(--ib-orange);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .14s, transform .1s;
-  white-space: nowrap;
-}
-.btn-atualizar:hover  { background: var(--ib-orange-2); }
-.btn-atualizar:active { transform: scale(.97); }
-.btn-atualizar.carregando { opacity: .7; cursor: wait; }
-
 /* ── LAYOUT ── */
 .app-body {
   display: grid;
@@ -598,16 +582,127 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .camp-paginacao .pag-info { flex: 1; text-align: center; white-space: nowrap; }
 .camp-paginacao button { min-width: 80px; }
-/* ── OneDrive button ──────────────────────────────────── */
+/* ── Botão "Publicar" (estilo herdado do antigo botão OneDrive) ─── */
 .btn-onedrive { background:#0078d4; color:#fff; border:none; }
 .btn-onedrive:hover:not(:disabled) { background:#106ebe; }
 .btn-onedrive:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── AUTENTICAÇÃO ─────────────────────────────────────── */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: linear-gradient(135deg, var(--ib-blue-deep) 0%, var(--ib-blue) 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.auth-card {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-md);
+  width: 340px; max-width: 90vw; padding: 28px 26px;
+}
+.auth-card h2 { font-size: 18px; margin-bottom: 4px; color: var(--ib-blue-deep); }
+.auth-card .auth-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+.auth-card .form-group { margin-bottom: 13px; }
+.auth-msg { font-size: 12px; margin-top: 10px; min-height: 16px; }
+.auth-msg.err { color: var(--danger); }
+.auth-msg.ok { color: var(--success); }
+.auth-switch { font-size: 12px; text-align: center; margin-top: 14px; color: var(--muted); }
+.role-badge {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+  padding: 3px 9px; border-radius: 20px; background: rgba(255,255,255,.18); color: #fff;
+}
+.role-badge.admin { background: var(--ib-orange); }
+.only-admin { display: none; }
+body.role-admin .only-admin { display: inline-flex; }
+.only-restrito { display: none; }
+body.role-restrito .only-restrito { display: block; }
+
+/* ── MODAL GENÉRICO (Metas / Usuários) ───────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(14,45,105,.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal-box {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-md);
+  width: 100%; max-width: 980px; max-height: 88vh;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-box .modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+}
+.modal-box .modal-header h3 { font-size: 15px; color: var(--ib-blue-deep); }
+.modal-box .modal-body { padding: 16px 18px; overflow: auto; flex: 1; }
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--muted); }
+
+/* ── GRADE DE METAS (estilo planilha) ─────────────────────── */
+.metas-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.metas-anos { display: flex; gap: 4px; }
+.metas-anos button.active { background: var(--ib-blue); color: #fff; }
+.metas-table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 6px; max-height: 55vh; }
+table.metas-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+table.metas-table th, table.metas-table td { border: 1px solid var(--border); padding: 0; text-align: right; white-space: nowrap; }
+table.metas-table th { background: var(--ib-blue-lt); color: var(--ib-blue-deep); padding: 6px 8px; position: sticky; top: 0; z-index: 2; text-align: center; }
+table.metas-table td.vendedor-cell { text-align: left; padding: 6px 8px; position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 220px; font-weight: 500; }
+table.metas-table th.vendedor-th { position: sticky; left: 0; z-index: 3; text-align: left; padding: 6px 8px; }
+table.metas-table td.codigo-cell { text-align: center; color: var(--muted); position: sticky; left: 220px; background: var(--surface); z-index: 1; }
+table.metas-table th.codigo-th { position: sticky; left: 220px; z-index: 3; }
+table.metas-table input.meta-cell {
+  width: 92px; border: none; padding: 6px 8px; text-align: right; font-size: 12px;
+  font-family: inherit; background: transparent;
+}
+table.metas-table input.meta-cell:focus { outline: 2px solid var(--ib-blue); outline-offset: -2px; background: #fff; }
+table.metas-table input.meta-cell:disabled { color: var(--muted); background: #f7f8fb; }
+table.metas-table tr.total-row td { background: var(--ib-orange-lt); font-weight: 700; }
+.metas-readonly-notice { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; }
+
+/* ── USUÁRIOS ──────────────────────────────────────────── */
+table.users-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.users-table th, table.users-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border); font-family: inherit; }
 
 </style>
 </head>
 <body>
 
-<!-- SYNC BANNER (carregamento do OneDrive) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ═══════════ TELA DE LOGIN / CADASTRO ═══════════ -->
+<div id="auth-overlay" class="auth-overlay" style="display:none">
+  <div class="auth-card">
+    <h2>ibratin — Gestor de Campanhas</h2>
+    <div class="auth-sub" id="auth-titulo">Entre com seu e-mail e senha</div>
+
+    <div id="auth-form-login">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-control" id="auth-login-email" type="email" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-control" id="auth-login-senha" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') fazerLogin()">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="fazerLogin()">Entrar</button>
+      <div class="auth-switch">Não tem conta? <a href="#" onclick="mostrarAuthForm('cadastro');return false">Solicitar acesso</a></div>
+    </div>
+
+    <div id="auth-form-cadastro" style="display:none">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-control" id="auth-cad-email" type="email" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-control" id="auth-cad-senha" type="password" placeholder="Mínimo 6 caracteres">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="fazerCadastro()">Solicitar acesso</button>
+      <div class="auth-switch">Já tem conta? <a href="#" onclick="mostrarAuthForm('login');return false">Entrar</a></div>
+    </div>
+
+    <div id="auth-msg" class="auth-msg"></div>
+  </div>
+</div>
+
+<!-- SYNC BANNER (carregamento do Supabase) -->
 <div id="od-sync-banner"></div>
 
 <!-- HEADER -->
@@ -619,13 +714,10 @@ tbody tr:last-child td { border-bottom: none; }
   </h1>
   <div style="display:flex;gap:8px;align-items:center">
     <span class="header-badge" id="badge-total">0 campanhas</span>
-    <button class="btn btn-ghost-white btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
-    <button class="btn btn-onedrive btn-sm" id="btn-od-header" onclick="publicarOneDrive()" title="Substitui o arquivo CSV no OneDrive">☁️ Publicar OneDrive</button>
-    <button class="btn btn-atualizar btn-sm" onclick="mostrarInstrucoesRelacoes()" title="Requer Power BI Desktop aberto + gerar_relacoes.py executado">⟳ Relações PBI</button>
-    <button class="btn btn-atualizar btn-sm" onclick="document.getElementById('input-dims-json').click()" title="Importe dims_ibratin.json gerado pelo exportar_dims_pbi.py">
-      ↻ Atualizar Dados
-    </button>
-    <input type="file" id="input-dims-json" accept=".json" style="display:none" onchange="importarDimsArquivo(this)">
+    <span class="role-badge" id="badge-role" style="display:none"></span>
+    <button class="btn btn-onedrive btn-sm" id="btn-od-header" onclick="publicarSupabase()" title="Atualiza as tabelas que o Power BI Dataflow consome">☁️ Publicar</button>
+    <button class="btn btn-ghost-white btn-sm only-admin" onclick="abrirUsuarios()">👥 Usuários</button>
+    <button class="btn btn-ghost-white btn-sm" onclick="fazerLogout()">🚪 Sair</button>
   </div>
 </header>
 
@@ -802,9 +894,6 @@ tbody tr:last-child td { border-bottom: none; }
         <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="salvar()">
           💾 Salvar Campanha
         </button>
-        <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="exportarRegraCompacta()">
-          📊 Exportar Regra (Power BI)
-        </button>
 
       </div>
     </div>
@@ -818,9 +907,8 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="card-header">
         <span>📋 Campanhas Cadastradas</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
-          <button class="btn btn-onedrive btn-sm" id="btn-od-lista" onclick="publicarOneDrive()" title="Substitui o arquivo CSV no OneDrive">☁️ Publicar OneDrive</button>
-          <button class="btn btn-ghost btn-sm" onclick="excluirTodas()" style="color:var(--danger)">🗑 Excluir todas</button>
+          <button class="btn btn-onedrive btn-sm" id="btn-od-lista" onclick="publicarSupabase()" title="Atualiza as tabelas que o Power BI Dataflow consome">☁️ Publicar</button>
+          <button class="btn btn-ghost btn-sm only-admin" onclick="excluirTodas()" style="color:var(--danger)">🗑 Excluir todas</button>
         </div>
       </div>
       <div class="camp-search-wrap">
@@ -837,15 +925,69 @@ tbody tr:last-child td { border-bottom: none; }
 
 <div class="toast-wrap" id="toast-wrap"></div>
 
+<!-- ═══════════ MODAL: METAS POR VENDEDOR ═══════════ -->
+<div class="modal-overlay" id="modal-metas" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>🎯 Metas — <span id="metas-camp-nome"></span> <span id="metas-camp-cod" style="font-size:11px;color:var(--muted);font-weight:400"></span></h3>
+      <button class="modal-close" onclick="fecharMetas()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="metas-readonly-notice only-restrito" id="metas-readonly-notice">
+        Você tem acesso somente leitura às metas. Apenas administradores podem editar.
+      </div>
+      <div class="metas-toolbar">
+        <div class="metas-anos" id="metas-anos"></div>
+        <input class="form-control" id="metas-busca-vendedor" placeholder="🔍 Vendedor (código ou nome)…" oninput="filtrarMetasVendedor(this.value)" style="max-width:240px">
+        <span style="flex:1"></span>
+        <button class="btn btn-primary btn-sm only-admin" id="btn-salvar-metas" onclick="salvarMetas()">💾 Salvar Metas</button>
+      </div>
+      <div class="metas-table-wrap">
+        <table class="metas-table" id="metas-table"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: USUÁRIOS (admin) ═══════════ -->
+<div class="modal-overlay" id="modal-usuarios" style="display:none">
+  <div class="modal-box" style="max-width:640px">
+    <div class="modal-header">
+      <h3>👥 Usuários</h3>
+      <button class="modal-close" onclick="fecharUsuarios()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        Novos cadastros entram como <strong>restrito</strong> e <strong>inativos</strong> até serem aprovados aqui.
+      </p>
+      <table class="users-table" id="users-table">
+        <thead><tr><th>E-mail</th><th>Papel</th><th>Ativo</th><th>Criado em</th></tr></thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════
      SCRIPT
 ══════════════════════════════════════════════════════════ -->
 <script>
 // ════════════════════════════
+//  SUPABASE — configuração
+//  Project URL e chave anon (pública por design; protegida por RLS no banco)
+// ════════════════════════════
+const SUPABASE_URL      = 'https://trdrqsrdtdezbopwahlo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyZHJxc3JkdGRlemJvcHdhaGxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMDUxMzgsImV4cCI6MjA5OTg4MTEzOH0.ISNFqRRvD7TWmoxyEpbdS_Z8g0lKfwNoWIfaZTSKCyg';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Perfil do usuário logado ({id, email, role, ativo}) — preenchido em checarSessao()
+let PERFIL = null;
+
+// ════════════════════════════
 //  DIMENSOES — gerado por exportar_dims_pbi.py
 //  Fonte: Power BI Desktop (AS local)
-//  (6 canais, 26 segmentos, 76 grupos, 9111 produtos)
-//  (17 empresas, 255 vendedores)
+//  (6 canais, 26 segmentos, 76 grupos, 9116 produtos)
+//  (17 empresas, 979 vendedores)
 // ════════════════════════════
 const DIM = {
   canal:    [
@@ -3858,6 +4000,7 @@ const DIM = {
     { cd:'4094 CORANTE LIQUIDO TEKB', nome:'4094 CORANTE LIQUIDO TEKBOND AMARELO 50 ML', grupo:20 },
     { cd:'792 CORANTE XADREZ MARROM', nome:'792 CORANTE XADREZ MARROM 50ML', grupo:20 },
     { cd:'793 CORANTE XADREZ OCRE 5', nome:'793 CORANTE XADREZ OCRE 50 ML', grupo:20 },
+    { cd:'12414 DESEMP ACO INOX', nome:'12414 DESEMP ACO INOX EFEITOS DECORATIVOS', grupo:21 },
     { cd:'12492 DESEMPENADEIRA BERO', nome:'12492 DESEMPENADEIRA BEROX VERSATIL 60CM', grupo:21 },
     { cd:'143 DESEMPENADEIRA LISA A', nome:'143 DESEMPENADEIRA LISA ACO 12X25', grupo:21 },
     { cd:'150 8 ESPATULA PLASTICA L', nome:'150 8 ESPATULA PLASTICA LISA 8 CM', grupo:21 },
@@ -4530,6 +4673,7 @@ const DIM = {
     { cd:'ZARCAO', nome:'ZARCAO - QT 900 ML', grupo:27 },
     { cd:'BLINDA TELHAS E CALHAS', nome:'BLINDA TELHAS E CALHAS - GL 3,6 LTS', grupo:28 },
     { cd:'BLINDA TELHAS E CALHAS', nome:'BLINDA TELHAS E CALHAS - GL 5,0 KGS', grupo:28 },
+    { cd:'BORRACHA LIQUIDA', nome:'BORRACHA LIQUIDA - BL 18,0 KGS', grupo:28 },
     { cd:'IBRATEC 5000', nome:'IBRATEC 5000 - GL 3,6 LTS', grupo:28 },
     { cd:'IBRATEC 7000', nome:'IBRATEC 7000 - GL 3,6 LTS', grupo:28 },
     { cd:'KIT IBRATEC 5000', nome:'KIT IBRATEC 5000', grupo:28 },
@@ -5792,6 +5936,7 @@ const DIM = {
     { cd:'TIXOTROL', nome:'SOLUCAO TIXOTROL 100M/6      SOL.100 M/6', grupo:47 },
     { cd:'SOLUGEL', nome:'SOLUGEL', grupo:47 },
     { cd:'SOLUÇÃO DE ADITIVOS.', nome:'SOLUÇÃO DE ADITIVOS.', grupo:47 },
+    { cd:'SOLUÇÃO PEDRAS', nome:'SOLUÇÃO GERAL PEDRAS 2026', grupo:47 },
     { cd:'SOLUÇÃO PEDRAS', nome:'SOLUÇÃO PEDRAS', grupo:47 },
     { cd:'SOLUÇÃO PIETRA FINAL', nome:'SOLUÇÃO PIETRA FINAL', grupo:47 },
     { cd:'SOLUÇÃO PIETRA PURA', nome:'SOLUÇÃO PIETRA PURA', grupo:47 },
@@ -6443,6 +6588,7 @@ const DIM = {
     { cd:'NACOR CIMENTO QUEIMADO', nome:'NACOR CIMENTO QUEIMADO MAX GP 4,0 KGS', grupo:59 },
     { cd:'NACOR GLITTER', nome:'NACOR GLITTER - PT 600 ML', grupo:59 },
     { cd:'NACOR MARMORIZADO - GA', nome:'NACOR MARMORIZADO - GP 4,0 KGS', grupo:59 },
+    { cd:'NACOR PEDRAS ORNAMENTAIS', nome:'NACOR PEDRAS ORNAMENTAIS - BG 20,0 KGS', grupo:59 },
     { cd:'NACOR PRIMER CIMENTO', nome:'NACOR PRIMER CIMENTO - GP 2,5 LTS', grupo:59 },
     { cd:'NACOR PRIMER CORTEN', nome:'NACOR PRIMER CORTEN - GP 2,5 LTS', grupo:59 },
     { cd:'RESINA PARA PISO PRO', nome:'RESINA PARA PISO PRO - BL 14 LTS', grupo:59 },
@@ -7926,6 +8072,7 @@ const DIM = {
     { cd:'TEXTURA DE ROLO ORO', nome:'TEXTURA DE RLO ORO - B.L. 30,0 KGS', grupo:62 },
     { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - B.L. 25,0 KGS', grupo:62 },
     { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - BG 50,0 KGS', grupo:62 },
+    { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - BL 25,0 KGS', grupo:62 },
     { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - BL 28,0 KGS', grupo:62 },
     { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - BP 20,0 KGS', grupo:62 },
     { cd:'TEXTURA DE ROLO', nome:'TEXTURA DE ROLO - ET AMOSTRA', grupo:62 },
@@ -10095,261 +10242,985 @@ const DIM = {
     { cd:'17', nome:'VIMA' }
   ],
   vendedor: [
-    { cd:'1', nome:'INGABELLO REPRESENTACOES COMERCIAIS EIR' },
-    { cd:'2', nome:'A C M COSTA REPRESENTACOES DE MERCADORIA' },
-    { cd:'3', nome:'A. EDUARDO REPRESENTACAO COMERCIAL' },
-    { cd:'4', nome:'A. EDUARDO REPRESENTACAO COMERCIAL -LB' },
-    { cd:'5', nome:'A.M. ARQ REPRESENTACOES COMERCIAS LTDA-M' },
-    { cd:'6', nome:'A.R NORMANDIA  REPRES E SERVICOS DE ENG' },
-    { cd:'7', nome:'ABELARDO GOMES CALHEIROS' },
-    { cd:'8', nome:'AIRTON FOSCHINE' },
-    { cd:'9', nome:'ALF REPRESENTACAO COMERCIAL E SERVICOS L' },
-    { cd:'10', nome:'ALFA SETE REPRESENTACOES LTDA' },
-    { cd:'11', nome:'ALIANCA JM REPRESENTACAO COMERCIAL LTDA' },
-    { cd:'12', nome:'ALICE LUIZA DA SILVA' },
-    { cd:'13', nome:'ALIRIO BERNARDINO REPRESENTACOES LTDA' },
-    { cd:'14', nome:'ALOISIO DE OLIVEIRA MENEZES' },
-    { cd:'15', nome:'AMARO BARTHOLOMEU PORFIRIO DE OLIVEIRA' },
-    { cd:'16', nome:'ANDERSON DE SOUSA TAVARES' },
-    { cd:'17', nome:'ANDERSON GRAÇA LEITE RODRIGUES' },
-    { cd:'18', nome:'ANDERSON JOSE DOS SANTOS' },
-    { cd:'19', nome:'ANDRE DA SILVA LOPES' },
-    { cd:'20', nome:'ANDRE LUIS FOSCHINI' },
-    { cd:'21', nome:'ANDRE PARISIO BARBOSA DE OLIVEIRA' },
-    { cd:'22', nome:'ANDREA ALMEIDA' },
-    { cd:'23', nome:'ANDREA CARLA DE A C CARNEIRO' },
-    { cd:'24', nome:'ANTONIO FABIO RODRIGUES DA FONSECA' },
-    { cd:'25', nome:'AOS REPRESENTACAO' },
-    { cd:'26', nome:'APOL REPRESENTACOES LTDA' },
-    { cd:'27', nome:'ARAGAO E BATISTA REPRESENTACOES LTDA' },
-    { cd:'28', nome:'ARIANE PAULA BERARDINELLI' },
-    { cd:'29', nome:'ARNALDO PESSOA DA SILVA 05308826803' },
-    { cd:'30', nome:'ARPEB REPRESENTACAO LTDA' },
-    { cd:'31', nome:'ASTERCA REPRESENTACAO COMERCIAL LTDA  ME' },
-    { cd:'32', nome:'ATILA ANTONIO MARINHO SEVERO' },
-    { cd:'33', nome:'AZETE REPRESENTACOES LTDA ME' },
-    { cd:'34', nome:'BASTOS E OLIVIERI REPRES COMERCIAIS LTDA' },
-    { cd:'35', nome:'BECCHI & RUIZ LTDA -ME' },
-    { cd:'36', nome:'BERNARDO SANTOS MENDES ALVES' },
-    { cd:'37', nome:'BNR COMERCIO E REPRESENTACOES' },
-    { cd:'38', nome:'BRIMEL ASS EMPRES  E REPRES COML LTDA' },
-    { cd:'39', nome:'BUMO CONSULTORIA E REPRESENTACAO COMERCI' },
-    { cd:'40', nome:'C&S REPRESENTACOES LTDA' },
-    { cd:'41', nome:'CARLOS ALBERTO DOS SANTOS MELO' },
-    { cd:'42', nome:'CARLOS ROBERTO DA SILVA LTDA' },
-    { cd:'43', nome:'CARLOS ROBERTO DE JESUS' },
-    { cd:'44', nome:'CARLOS VINICIUS OMENA DE SOUZA' },
-    { cd:'45', nome:'CASA COLORIDA REPRESENTACOES LTDA' },
-    { cd:'46', nome:'CELSO UBIRATAN GARCIA RIOS' },
-    { cd:'47', nome:'CHARLENE COSTA FRASSON (GERENTE)' },
-    { cd:'48', nome:'CHRISTALL COMERCIO DE METAIS LTDA' },
-    { cd:'49', nome:'CLAUDIA ROBERTO DOS SANTOS SILVA' },
-    { cd:'50', nome:'CLEBIAN JOSE DA SILVA NASCIMENTO' },
-    { cd:'51', nome:'CLEBIAN JOSE DA SILVA NASCIMENTO - ENG' },
-    { cd:'52', nome:'COMÉRCIO E REPRESENTAÇÃO LUIS OLIVEIRA L' },
-    { cd:'53', nome:'CONTRACTO - RT' },
-    { cd:'54', nome:'CONTRACTO CONS. E GERENC. DE VENDAS LTDA' },
-    { cd:'55', nome:'DAJOL REPRESENTACOES LTDA - ME' },
-    { cd:'56', nome:'DAYSIAN LANA DE SOUSA' },
-    { cd:'57', nome:'DEMETRIO VASCONCELOS DOS SANTOS' },
-    { cd:'58', nome:'DEUSIMAR MOREIRA MOURA' },
-    { cd:'59', nome:'DF DISTRIBUIDORA REPRESENTACOES' },
-    { cd:'60', nome:'DIOGO RODRIGUES WANDERLEY' },
-    { cd:'61', nome:'DIRETO - AFA' },
-    { cd:'62', nome:'DIRETO - AM COMERCIAL' },
-    { cd:'63', nome:'DIRETO - CASAS JARDIM' },
-    { cd:'64', nome:'DIRETO - ENCONTRO DO SOL' },
-    { cd:'65', nome:'DIRETO - IBRATIN NORDESTE' },
-    { cd:'66', nome:'DIRETO - IBRATIN SP' },
-    { cd:'67', nome:'DIRETO - LEROY (ACORDO / BONIFICACAO)' },
-    { cd:'68', nome:'DIRETO - LEROY MERLIN' },
-    { cd:'69', nome:'DIRETO - LOJAS DE DECORACAO E TINTEIRAS' },
-    { cd:'70', nome:'DIRETO - MAF' },
-    { cd:'71', nome:'DIRETO - MRV' },
-    { cd:'72', nome:'DIRETO - PRIVATE LABEL' },
-    { cd:'73', nome:'DIRETO DNZ' },
-    { cd:'74', nome:'DIRETO E-COMMERCE NE' },
-    { cd:'75', nome:'DIRETO E-COMMERCE SP' },
-    { cd:'76', nome:'DIRETO INTERNO' },
-    { cd:'77', nome:'DIRETO MERCADO LIVRE' },
-    { cd:'78', nome:'DIRETO VAREJO' },
-    { cd:'79', nome:'DOUGLAS CHAGAS MARTINS' },
-    { cd:'80', nome:'EDEN SOUZA' },
-    { cd:'81', nome:'EDM REPRESENTACOES COMERCIAIS LTDA' },
-    { cd:'82', nome:'EDMARCAS REPRESENTACOES LTDA' },
-    { cd:'83', nome:'EDNA APARECIDA SANTOS CASTRO' },
-    { cd:'84', nome:'EDSON EVANGELISTA' },
-    { cd:'85', nome:'EFICIENCIA COMERCIAL E REPRESENTACAO' },
-    { cd:'86', nome:'EFICIENCIA COMERCIAL E REPRESENTACAO-LB' },
-    { cd:'87', nome:'ELIAB JOSE BORGES' },
-    { cd:'88', nome:'ESCRITORIO MACEDO' },
-    { cd:'89', nome:'ESTRUTURAL REPRESENTACOES LTDA - ME' },
-    { cd:'90', nome:'EUROREVEST COM. MAT. CONST. LTDA.' },
-    { cd:'91', nome:'EVANDRO ANTUNES DOS SANTOS' },
-    { cd:'92', nome:'F.LOSS REPRESENTACOES LTDA' },
-    { cd:'93', nome:'FACE REPRESENTACAO COMERCIAL' },
-    { cd:'94', nome:'FELIPE RAFAEL MELO' },
-    { cd:'95', nome:'FIMASA  REPRESENTACOES LTDA ME' },
-    { cd:'96', nome:'FINESTRA ARQUITETURA E REPRESENTACOES' },
-    { cd:'97', nome:'FLAVIO RODRIGO A DA SILVA' },
-    { cd:'98', nome:'FORMACAMP REPR. COM. M CONST.CIVIL LTDA' },
-    { cd:'99', nome:'FRANCISCO RICARDO E SILVA JUNIOR' },
-    { cd:'100', nome:'GALEGUINHO CAIEIRAS' },
-    { cd:'101', nome:'GALEGUINHO CAJAMAR' },
-    { cd:'102', nome:'GALEGUINHO CAMBORIU' },
-    { cd:'103', nome:'GALEGUINHO CAMPINAS' },
-    { cd:'104', nome:'GALEGUINHO CARAPICUIBA' },
-    { cd:'105', nome:'GALEGUINHO FCO MORATO' },
-    { cd:'106', nome:'GALEGUINHO GUARULHOS' },
-    { cd:'107', nome:'GALEGUINHO JUNDIAI' },
-    { cd:'108', nome:'GALEGUINHO RIO' },
-    { cd:'109', nome:'GERALDO CAVALCANTE' },
-    { cd:'110', nome:'GR3 REPRESENTACOES EIRELI - ME' },
-    { cd:'111', nome:'GRAPIUNA REPRESENTAÇOES E COMERCIO DE MA' },
-    { cd:'112', nome:'GUARUCORES REPRESENTACOES LTDA' },
-    { cd:'113', nome:'GUIA REPRES E SOLUCOES CONSTRUTIVAS LTDA' },
-    { cd:'114', nome:'H.A. CONSTRUCOES E REFORMAS LTDA' },
-    { cd:'115', nome:'H3 REPRESENTACAO COMERCIAL LTDA' },
-    { cd:'116', nome:'HERICKE DAVID FRANCA DOS SANTOS' },
-    { cd:'117', nome:'I.A COMERCIO E REPRESENTACOES EIRELLI' },
-    { cd:'118', nome:'IMPACTO REPRESENTAÇÕES' },
-    { cd:'119', nome:'IVANILDO GOMES MESQUITA' },
-    { cd:'120', nome:'J L SANTOS COMERCIO E REPRESENTACOES LTD' },
-    { cd:'121', nome:'J VICTOR REPRESENTAÇÕES LTDA' },
-    { cd:'122', nome:'J.A CAMELO DE OLIVEIRA JUNIOR' },
-    { cd:'123', nome:'J.B.S COMERCIO E REPRESENTACOES LTDA' },
-    { cd:'124', nome:'JABUD REPRESENTACOES LTDA' },
-    { cd:'125', nome:'JACKSON PEDRO DA SILVA' },
-    { cd:'126', nome:'JAF CONSULTORIA EMPRESARIAL LTDA - ME' },
-    { cd:'127', nome:'JAIRO CARNEIRO DE SANTANA' },
-    { cd:'128', nome:'JAIRO OSCAR DO NASCIMENTO' },
-    { cd:'129', nome:'JAKSON HENRIQUE ALVES DE SOUZA' },
-    { cd:'130', nome:'JEFFERSON MARTINATTI' },
-    { cd:'131', nome:'JJB REPRESENTAÇÃO COMERCIAL LTDA' },
-    { cd:'132', nome:'JMF REPRESENTACOES LTD' },
-    { cd:'133', nome:'JOAO JOSE BARROS LEITE' },
-    { cd:'134', nome:'JONHNNY ALEX MENDES SILVA SANTOS' },
-    { cd:'135', nome:'JOSE ARENA CAMELO DE OLIVEIRA' },
-    { cd:'136', nome:'JOSE CARLOS DA SILVA ACIOLI - ME' },
-    { cd:'137', nome:'JOSE HAILTON BEZERRA PINTO' },
-    { cd:'138', nome:'JOSE MATIAS DOS SANTOS JUNIOR' },
-    { cd:'139', nome:'JOSE VINICIUS SANTOS SOARES' },
-    { cd:'140', nome:'JOTAEFE COMERCIO E REPRESENTACOES LTDA' },
-    { cd:'141', nome:'JOTAEFE COMERCIO E REPRESENTACOES REVEND' },
-    { cd:'142', nome:'JP DINIZ FREIRE REPRESENTACAO COMERCIAL' },
-    { cd:'143', nome:'JULIETA DE FATIMA  LALOR MOTA ALMEIRA' },
-    { cd:'144', nome:'JVR MOURAWAD CONSULTORIA DE VENDAS LTDA' },
-    { cd:'145', nome:'KARINE CORREIA UCHOA BARROS' },
-    { cd:'146', nome:'L2 REPRESENTACOES COMERCIAIS LTDA' },
-    { cd:'147', nome:'LARISSA FERRO ROCHA' },
-    { cd:'148', nome:'LARYSSA FERNANDA DE BARROS VEIGA' },
-    { cd:'149', nome:'LD - TERASSE' },
-    { cd:'150', nome:'LEANDRO DELGADO DE SOUZA' },
-    { cd:'151', nome:'LEON REPRESENTAÇÕES' },
-    { cd:'152', nome:'LIDYANNE BARBOSA DE LIMA' },
-    { cd:'153', nome:'M & M PROJETOS E REPRESENTACOES LTDA' },
-    { cd:'154', nome:'M C M DE SOUZA REPRESENTACOES LTDA' },
-    { cd:'155', nome:'M. FRANK REPRESENTACAO COMERCIAL LTDA-ME' },
-    { cd:'156', nome:'MADECON REPRESENTACOES LTDA' },
-    { cd:'157', nome:'MAGNO WANDERLEY REPRESENTACOES LTDA - LB' },
-    { cd:'158', nome:'MAGNO WANDERLEY REPRESENTACOES LTDA.-ME' },
-    { cd:'159', nome:'MARB REPRESENTACOES LTDA' },
-    { cd:'160', nome:'MARCELO CASTRO  ALVES' },
-    { cd:'161', nome:'MARCELO FERREIRA DA PONTE' },
-    { cd:'162', nome:'MARCIO MACHADO CITRINI' },
-    { cd:'163', nome:'MARCIO RICARDO SANTOS DE OLIVEIRA' },
-    { cd:'164', nome:'MARCO VITORIO FRADE GREGHI' },
-    { cd:'165', nome:'MARIA DA GLORIA SOARES RIBEIRO DAMASCENO' },
-    { cd:'166', nome:'MARIO KOETZ & CIA LTDA' },
-    { cd:'167', nome:'MARKESA' },
-    { cd:'168', nome:'MARQUES LIMA REPRESENTACOES COMERCIA -LB' },
-    { cd:'169', nome:'MARQUES LIMA REPRESENTACOES COMERCIAIS L' },
-    { cd:'170', nome:'MAYARA ROCHA TOLEDO' },
-    { cd:'171', nome:'MCT CONSULTORIA E REPRESENTACOES LTDA' },
-    { cd:'172', nome:'MESTRA REPRES E CONSULTORIA EM ENG LTDA' },
-    { cd:'173', nome:'MIKELINE DE ARAUJO MESQUITA COSTA' },
-    { cd:'174', nome:'MILAN DOWELL REPRESENTAÇOES LTDA' },
-    { cd:'175', nome:'MJ NEGOCIOS DIGITAIS' },
-    { cd:'176', nome:'MM COMERCIO DE MATERIAIS DE CONSTRUCAO L' },
-    { cd:'177', nome:'MOVELE REPRESENTAÇÕES LTDA' },
-    { cd:'178', nome:'NAOR LUCAS BITTENCOURT LOPES' },
-    { cd:'179', nome:'NATASHA TOMAZ DA SILVA FREIRE' },
-    { cd:'180', nome:'NETO & SILVEIRA REPRESENTACOES LTDA - ME' },
-    { cd:'181', nome:'NEW AGE REPRESENTACOES SBC LTDA' },
-    { cd:'182', nome:'NEYLOR ROBERTO DE FREITAS' },
-    { cd:'183', nome:'NOGUEIRA REPRESENTACOES LTDA ME' },
-    { cd:'184', nome:'NORONHA REP DE MATL DE CONST LTDA' },
-    { cd:'185', nome:'NOVA FORMA REPRESENTAÇÕES S/C LTDA - ME' },
-    { cd:'186', nome:'NUNO MIGUEL DAS CHAGAS ARAUJO' },
-    { cd:'187', nome:'O COMANDO REPRESENTAÇÕES LTDA' },
-    { cd:'188', nome:'O COMANDO REPRESENTACOES LTDA LB' },
-    { cd:'189', nome:'OMENA REPRESENTACOES & SERVICOS LTDA' },
-    { cd:'190', nome:'PAULO EDUARDO DE A. FALCAO' },
-    { cd:'191', nome:'PAULO LISBOA REPRESENTACOES LTDA.' },
-    { cd:'192', nome:'PAULO VICTOR DE FREITAS DA SILVA' },
-    { cd:'193', nome:'PEREIRA & NEMITZ REPRESENTACAO COMERCIAL' },
-    { cd:'194', nome:'PG REPRESENTACOES COMERCIAIS' },
-    { cd:'195', nome:'PINTURE - COMERCIO E REPRESENTACAO LTDA' },
-    { cd:'196', nome:'PRAXEDES E BONE REPRESENTACAO LTDA' },
-    { cd:'197', nome:'PROJECTO PLANEJAMENTO E ASSESSORIA TECNI' },
-    { cd:'198', nome:'PVP REPRESENTAÇÕES E TREINAMENTOS LTDA' },
-    { cd:'199', nome:'RAFAEL NASCIMENTO DA PAZ' },
-    { cd:'200', nome:'RAYANNE LEITE GUIMARAES' },
-    { cd:'201', nome:'RÉGIS MARCELO BASTOS LUMERTZ' },
-    { cd:'202', nome:'RENATO LEONCIO DE BARROS DOS SANTOS' },
-    { cd:'203', nome:'REPRESENTANTE LEROY' },
-    { cd:'204', nome:'RESISTENCIA COM E REP LTDA' },
-    { cd:'205', nome:'RF97 REPRESENTACOES' },
-    { cd:'206', nome:'RGB CONSULTORIA E REPRESENTACOES COMERCI' },
-    { cd:'207', nome:'RICARDO BATISTA DE ARAUJO JUNIOR' },
-    { cd:'208', nome:'RICARDO FERREIRA TENORIO' },
-    { cd:'209', nome:'RICARDO OLIVEIRA PA DE MELO' },
-    { cd:'210', nome:'RICARDO SILVA LOZANO' },
-    { cd:'211', nome:'RICHARD MORRESQUE PORTO' },
-    { cd:'212', nome:'RODRIGO BARBOSA DIAS' },
-    { cd:'213', nome:'RODRIGO FERREIRA COSTA' },
-    { cd:'214', nome:'RODRIGO FERREIRA COSTA VAR' },
-    { cd:'215', nome:'RT BRITTO & CIA LTDA  - ME' },
-    { cd:'216', nome:'RUBENS GERSON BRUNO JUNIOR' },
-    { cd:'217', nome:'SA REPRESENTAÇÕES E CONSULTORIA' },
-    { cd:'218', nome:'SANDRA MARA SCHON MORAES ME.' },
-    { cd:'219', nome:'SESB REPRESENTACOES LTDA' },
-    { cd:'220', nome:'SESB REPRESENTACOES LTDA - LB' },
-    { cd:'221', nome:'SEVEN SERVICOS ADM E REPRES MAT CONSTRUC' },
-    { cd:'222', nome:'SILMARA LUZIA  DE SANDI - ME' },
-    { cd:'223', nome:'SIVALDO DA SILVA JANUARIO - ME' },
-    { cd:'224', nome:'SORELLE REP COMERCIAIS DE MAT E CONSTRUÇ' },
-    { cd:'225', nome:'SRC ARAUJO DE SOUZA EPP' },
-    { cd:'226', nome:'T F V B ROCHA COM E SERV DE FILTROS E RE' },
-    { cd:'227', nome:'T F V B ROCHA COM E SERV DE FILTROS VARE' },
-    { cd:'228', nome:'TATIANA SANTOS DE BARROS DO NASCIMENTO' },
-    { cd:'229', nome:'TECNORAP REPRESENTACOES COMERCIAIS LTDA' },
-    { cd:'230', nome:'TH GOMES REPRESENTACOES LTA - ME' },
-    { cd:'231', nome:'THAMYRES BARBOSA TENORIO' },
-    { cd:'232', nome:'THAUAN STHANLEY JOSE VIEIRA' },
-    { cd:'233', nome:'THIAGO OLIVEIRA BEZERRA' },
-    { cd:'234', nome:'THIAGO RIBEIRO SOBRAL' },
-    { cd:'235', nome:'THYAGO GIRUNDI CICILIOTTI' },
-    { cd:'236', nome:'THYAGO OLIVEIRA MARANHAO LIMA' },
-    { cd:'237', nome:'TILES PISOS E REVESTIMENTOS LTDA' },
-    { cd:'238', nome:'TINTAS TIMA LTDA' },
-    { cd:'239', nome:'TRANQUILO REPRESENTAÇÕES COMERCIAIS LTDA' },
-    { cd:'240', nome:'TUBARÃO REPRESENTAÇÕES COMERCIAIS LTDA' },
-    { cd:'241', nome:'UBIRATAN PIMENTA REPRESENTACOES' },
-    { cd:'242', nome:'ULISSES LAURINDO DA SILVA JUNIOR' },
-    { cd:'243', nome:'V.R.P REPRESENTAÇÕES' },
-    { cd:'244', nome:'VAGNE SILVA ALVES' },
-    { cd:'245', nome:'VALTER JOSE HAVERROTH JUNIOR' },
-    { cd:'246', nome:'VICENTE FELICIANI REPRESENTACAO COMERCIA' },
-    { cd:'247', nome:'VICTOR DOS SANTOS BARBOSA' },
-    { cd:'248', nome:'VINICIUS TADEU D ANDREA COELHO' },
-    { cd:'249', nome:'VINICIUS TORRES DE SOUZA' },
-    { cd:'250', nome:'VOGAL REPRESENTACOES COMERCIAIS LTDA' },
-    { cd:'251', nome:'VSL REPRESENTACAO COMERCIAL LTDA' },
-    { cd:'252', nome:'W ARAUJO & CIA LTDA' },
-    { cd:'253', nome:'W.R. REPRESENTACOES' },
-    { cd:'254', nome:'WAGNER LEMOS' },
-    { cd:'255', nome:'WALTER LUIS MULLER' }
+    { cd:'R00942', nome:'INGABELLO REPRESENTACOES COMERCIAIS EIR' },
+    { cd:'R00938', nome:'R G G REPRESENTACOES DE MATERIAIS DE CO' },
+    { cd:'R00913', nome:'2AS REPRESENTAÇÕES E SERVIÇOS LTDA' },
+    { cd:'R00886', nome:'A C M COSTA REPRESENTACOES DE MERCADORIA' },
+    { cd:'R00163', nome:'A J LIMA - ME' },
+    { cd:'R00899', nome:'A N RAMPININI' },
+    { cd:'R00001', nome:'A. EDUARDO REPRESENTACAO COMERCIAL' },
+    { cd:'R00002', nome:'A. EDUARDO REPRESENTACAO COMERCIAL -LB' },
+    { cd:'R00932', nome:'A.M. ARQ REPRESENTACOES COMERCIAS LTDA-M' },
+    { cd:'R00157', nome:'A.R NORMANDIA  REPRES E SERVICOS DE ENG' },
+    { cd:'Z00001', nome:'A.S. BARBOSA REPRESENTACOES LTDA.' },
+    { cd:'R00285', nome:'A2 REPRESENCAO DE MATERIAIS DE CONSTRUCA' },
+    { cd:'V00134', nome:'ABELARDO GOMES CALHEIROS' },
+    { cd:'V00001', nome:'ABELARDO GOMES CALHEIROS' },
+    { cd:'Z00002', nome:'ABLE COMERCIO E REPRESENTACOES LTDA.' },
+    { cd:'R00940', nome:'AC REPRESENTACOES LTDA' },
+    { cd:'Z00003', nome:'ADA REPRESENTACOES LTDA.' },
+    { cd:'SG0013', nome:'ADRIANO ROLLERI' },
+    { cd:'G00013', nome:'ADRIANO ROLLERI' },
+    { cd:'G00009', nome:'ADRIANO ROLLERI' },
+    { cd:'Z00004', nome:'AFINCO S/C LTDA.' },
+    { cd:'VS0036', nome:'AIRTON FOSCHINE' },
+    { cd:'S00036', nome:'AIRTON FOSCHINE' },
+    { cd:'R00943', nome:'AJG REPRESENTACOES LTDA' },
+    { cd:'S00001', nome:'ALBERTO L. S. SARMAZO' },
+    { cd:'Z00314', nome:'ALCEU DIAS DE ANDRADE & CIA LTDA.' },
+    { cd:'Z00311', nome:'ALCEU SEBASTIAO DE LIMA' },
+    { cd:'Z00006', nome:'ALESSANDRA V. PEREIRA' },
+    { cd:'V00002', nome:'ALESSANDRO SERRA' },
+    { cd:'S00003', nome:'ALEX FELIPE DE AZEVEDO' },
+    { cd:'V00131', nome:'ALEXANDRA MIRINDIBA' },
+    { cd:'VS0020', nome:'ALEXANDRA PATRICIA DE OLIVEIRA (GERENTE)' },
+    { cd:'S00020', nome:'ALEXANDRA PATRICIA DE OLIVEIRA (GERENTE)' },
+    { cd:'Z00007', nome:'ALEXANDRE - LOJAS' },
+    { cd:'V00003', nome:'ALEXANDRE GOMES' },
+    { cd:'R00576', nome:'ALEXSANDRO COUTINHO PAIM' },
+    { cd:'R00918', nome:'ALF REPRESENTACAO COMERCIAL E SERVICOS L' },
+    { cd:'Z00008', nome:'ALFA PINTURAS E REPRESENTACOES LTDA.' },
+    { cd:'R00186', nome:'ALFA SETE REPRESENTACOES LTDA' },
+    { cd:'R00949', nome:'ALIANCA JM REPRESENTACAO COMERCIAL LTDA' },
+    { cd:'V00780', nome:'ALICE LUIZA DA SILVA' },
+    { cd:'R00185', nome:'ALIRIO BERNARDINO REPRESENTACOES LTDA' },
+    { cd:'VS0002', nome:'ALLAN FEDATO ROCHA' },
+    { cd:'S00002', nome:'ALLAN FEDATO ROCHA' },
+    { cd:'R00135', nome:'ALLONSO REPRESENTACAO COMERCIAL LTDA' },
+    { cd:'Z00005', nome:'ALMEIDA- LOJAS' },
+    { cd:'R00003', nome:'ALMILUCI SILVA BITENCOURT' },
+    { cd:'V00700', nome:'ALOISIO DE OLIVEIRA MENEZES' },
+    { cd:'R00184', nome:'ALVES CASTRO REPRESENTAÇÕES EIRELI' },
+    { cd:'R00945', nome:'ALVIM CORDEIRO PINTO & CIA. LTDA' },
+    { cd:'R00141', nome:'ALVO REPRESENTACAO COMERCIAL' },
+    { cd:'V00004', nome:'AMANDA COSMO ALVES LIRA  - BWC PE' },
+    { cd:'V00710', nome:'AMARO BARTHOLOMEU PORFIRIO DE OLIVEIRA' },
+    { cd:'Z00315', nome:'ANA PAULA CATTO' },
+    { cd:'Z00009', nome:'ANA RAQUEL DE OLIVEIRA TORRES' },
+    { cd:'Z00010', nome:'ANATEC REPRESENTACÄO COMERCIAL S/C LTDA' },
+    { cd:'S00044', nome:'ANDERSON DE SOUSA TAVARES' },
+    { cd:'VS0044', nome:'ANDERSON DE SOUSA TAVARES' },
+    { cd:'V00079', nome:'ANDERSON GOMES DA SILVA' },
+    { cd:'V00916', nome:'ANDERSON GRAÇA LEITE RODRIGUES' },
+    { cd:'V00126', nome:'ANDERSON JOSE DOS SANTOS' },
+    { cd:'V00108', nome:'ANDERSON JOSE YULE DE REZENDE' },
+    { cd:'V00832', nome:'ANDRE DA SILVA LOPES' },
+    { cd:'V00005', nome:'ANDRE DA SILVA MENEZES' },
+    { cd:'S00033', nome:'ANDRE LUIS FOSCHINI' },
+    { cd:'VS0033', nome:'ANDRE LUIS FOSCHINI' },
+    { cd:'Z00011', nome:'ANDRE LUIS QUEIROS PINHO' },
+    { cd:'SG0377', nome:'ANDRE PARISIO BARBOSA DE OLIVEIRA' },
+    { cd:'VS0377', nome:'ANDRE PARISIO BARBOSA DE OLIVEIRA' },
+    { cd:'Z00012', nome:'ANDRE RICARDO NORMANDIA MONTEIRO' },
+    { cd:'VS0031', nome:'ANDREA ALMEIDA' },
+    { cd:'S00031', nome:'ANDREA CARLA DE A C CARNEIRO' },
+    { cd:'ARQ009', nome:'ANITA BASTOS LIMA LINHARES' },
+    { cd:'Z00013', nome:'ANPERE REPRESENTAÇÕES LTDA ME' },
+    { cd:'Z00014', nome:'ANSELMO OLIVEIRA DE ALMEIDA' },
+    { cd:'V00096', nome:'ANTERO PINHEIRO DOS SANTOS JUNIOR' },
+    { cd:'Z00015', nome:'ANTONIO ALVES DE ALBUQ.(EX-FUNCIONARIO)' },
+    { cd:'Z00016', nome:'ANTONIO CARLOS TUTUY' },
+    { cd:'V00006', nome:'ANTONIO EDSON' },
+    { cd:'VS0040', nome:'ANTONIO FABIO RODRIGUES DA FONSECA' },
+    { cd:'R00015', nome:'ANTONIO FREITAS JUNIOR' },
+    { cd:'Z00017', nome:'ANTONIO TADEU BARBOSA BRAGA' },
+    { cd:'R00901', nome:'AOS REPRESENTACAO' },
+    { cd:'VS0018', nome:'APIO ALELUIA DE FREITAS JUNIOR' },
+    { cd:'S00018', nome:'APIO ALELUIA DE FREITAS JUNIOR' },
+    { cd:'R00004', nome:'APLEM ADMINISTRACAO E REP. LTDA' },
+    { cd:'R00127', nome:'APOL REPRESENTACOES LTDA' },
+    { cd:'R00106', nome:'APOLONIO FERREIRA DE OLIVEIRA' },
+    { cd:'R00280', nome:'ARAGAO E BATISTA REPRESENTACOES LTDA' },
+    { cd:'R00282', nome:'ARAGAO E BATISTA REPRESENTACOES LTDA VAR' },
+    { cd:'R00005', nome:'AREA WORD' },
+    { cd:'V00007', nome:'ARI MAZZOCHIN' },
+    { cd:'V00339', nome:'ARIANE PAULA BERARDINELLI' },
+    { cd:'R00006', nome:'ARLECIO' },
+    { cd:'R00158', nome:'ARNALDO PESSOA DA SILVA 05308826803' },
+    { cd:'R00941', nome:'ARPEB REPRESENTACAO LTDA' },
+    { cd:'Z00019', nome:'ARRUDA JUNIOR ( EX-FUNCIONARIO )' },
+    { cd:'Z00020', nome:'ARTUR-IBRATIN GALENO' },
+    { cd:'Z00021', nome:'ASS-M COMERCIO REPRES. SERVICOS LTDA.' },
+    { cd:'R00120', nome:'ASTERCA REPRESENTACAO COMERCIAL LTDA  ME' },
+    { cd:'V00701', nome:'ATILA ANTONIO MARINHO SEVERO' },
+    { cd:'R00145', nome:'AZETE REPRESENTACOES LTDA ME' },
+    { cd:'Z00022', nome:'BARROCO CLASSIC COM.DE MAT.CONSTR.LTDA.' },
+    { cd:'R00179', nome:'BASTOS E OLIVIERI REPRES COMERCIAIS LTDA' },
+    { cd:'ARQ027', nome:'BCA ARQUITETURA E REPRESENTACOES' },
+    { cd:'R00401', nome:'BECCHI & RUIZ LTDA -ME' },
+    { cd:'Z00023', nome:'BELLA COR COMERCIO DE TINTAS LTDA - ME' },
+    { cd:'ARQ005', nome:'BENEDITO FERNANDES BRILHANTE FILHO' },
+    { cd:'R00166', nome:'BENETI REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'V00333', nome:'BERNARDO SANTOS MENDES ALVES' },
+    { cd:'R00577', nome:'BNR COMERCIO E REPRESENTACOES' },
+    { cd:'R00173', nome:'BRIMEL ASS EMPRES  E REPRES COML LTDA' },
+    { cd:'R00952', nome:'BUMO CONSULTORIA E REPRESENTACAO COMERCI' },
+    { cd:'Z00024', nome:'BW CARTISANO-PE IGOR MARCIO' },
+    { cd:'Z00025', nome:'BW CARTISANO-PE SHEILA DE FARIA' },
+    { cd:'Z00026', nome:'BW CARTISANO-PE SHEILLA CRISTINA' },
+    { cd:'R00175', nome:'C&S REPRESENTACOES LTDA' },
+    { cd:'R00126', nome:'C&S REPRESENTACOES LTDA' },
+    { cd:'Z00027', nome:'C.M.B.& C. REPRESENTACOES LTDA.' },
+    { cd:'Z00029', nome:'C.M.T. DOS SANTOS REPRESENTACOES' },
+    { cd:'V00075', nome:'CAMILA DOS SANTOS CLAUDINO' },
+    { cd:'Z00030', nome:'CARIBE REPRES.COML.COM.MATS.CONSTRUCAO L' },
+    { cd:'S00013', nome:'CARLA FRANCISCATO MATA NOGUEIRA' },
+    { cd:'VS0013', nome:'CARLA FRANCISCATO MATA NOGUEIRA' },
+    { cd:'V00091', nome:'CARLOS ALBERTO DOS SANTOS MELO' },
+    { cd:'V00139', nome:'CARLOS ALBERTO DOS SANTOS MELO' },
+    { cd:'R00953', nome:'CARLOS ROBERTO DA SILVA LTDA' },
+    { cd:'S00014', nome:'CARLOS ROBERTO DE JESUS' },
+    { cd:'VS0014', nome:'CARLOS ROBERTO DE JESUS' },
+    { cd:'VSG010', nome:'CARLOS ROBERTO NEME' },
+    { cd:'SG0010', nome:'CARLOS ROBERTO NEME' },
+    { cd:'G00010', nome:'CARLOS ROBERTO NEME' },
+    { cd:'V00009', nome:'CARLOS SIEGA JUNIOR' },
+    { cd:'Z00031', nome:'CARLOS TUCCI' },
+    { cd:'V00781', nome:'CARLOS VINICIUS OMENA DE SOUZA' },
+    { cd:'ARQ001', nome:'CARMEN RAQUEL' },
+    { cd:'R00987', nome:'CARVALHO REPRESENTACOES LTDA' },
+    { cd:'R00914', nome:'CASA COLORIDA REPRESENTACOES LTDA' },
+    { cd:'R00129', nome:'CASABLANCA COM DE PISOS E REVESTIMENTOS' },
+    { cd:'R00109', nome:'CASAZUL COMERCIO E REPRESENTACAO LTDA' },
+    { cd:'S00035', nome:'CATARINA FALCÃO' },
+    { cd:'R00924', nome:'CATARINA REPRESENTAÇÕES LTDA' },
+    { cd:'V00010', nome:'CATIA ALMEIDA DE SANTANA DOS SANTOS' },
+    { cd:'Z00312', nome:'CAZAN CONSTRUTORA DE OBRAS LTDA' },
+    { cd:'Z00032', nome:'CELIA C. SANTOS' },
+    { cd:'Z00033', nome:'CELSO LUIZ TSCHA E CIA LTDA.' },
+    { cd:'V00082', nome:'CELSO UBIRATAN GARCIA RIOS' },
+    { cd:'R00008', nome:'CENTRO DE CONSTRUCOES COM E REP. LTDA' },
+    { cd:'VSG001', nome:'CHARLENE COSTA FRASSON (GERENTE)' },
+    { cd:'SG0001', nome:'CHARLENE COSTA FRASSON (GERENTE)' },
+    { cd:'G00001', nome:'CHARLENE COSTA FRASSON (GERENTE)' },
+    { cd:'R00603', nome:'CHRISTALL COMERCIO DE METAIS LTDA' },
+    { cd:'PIN002', nome:'CICERO JOSE SILVA' },
+    { cd:'Z00034', nome:'CID COELHO' },
+    { cd:'Z00035', nome:'CINTIA SERRANO CORREIA' },
+    { cd:'Z00036', nome:'CIVI REPRESENTACOES COMERCIAIS LTDA.' },
+    { cd:'Z00037', nome:'CLANAP COM.IMPORT.E EXPORT.LTDA' },
+    { cd:'ARQ030', nome:'CLAUDIA CHECCUCCI' },
+    { cd:'V00779', nome:'CLAUDIA ROBERTO DOS SANTOS SILVA' },
+    { cd:'V00103', nome:'CLAUDINEI LOPES' },
+    { cd:'Z00038', nome:'CLAUDINEI ROSI DIAS' },
+    { cd:'V00711', nome:'CLEBIAN JOSE DA SILVA NASCIMENTO' },
+    { cd:'V00712', nome:'CLEBIAN JOSE DA SILVA NASCIMENTO - ENG' },
+    { cd:'Z00039', nome:'CLEITON TARINI' },
+    { cd:'Z00040', nome:'CLESO GOMES DE OLIVEIRA' },
+    { cd:'R00155', nome:'COGIL REPRESENTACAO COMERCIAL LTDA - ME' },
+    { cd:'Z00041', nome:'COMERCIAL REPRES. BALDISSERA LTDA.' },
+    { cd:'R00601', nome:'COMÉRCIO E REPRESENTAÇÃO LUIS OLIVEIRA L' },
+    { cd:'Z00042', nome:'CONSERT RESIDENCIA LTDA.' },
+    { cd:'Z00313', nome:'CONSTRUTORA MARKA LTDA' },
+    { cd:'R00011', nome:'CONTRACTO - RT' },
+    { cd:'R00010', nome:'CONTRACTO CONS. E GERENC. DE VENDAS LTDA' },
+    { cd:'Z00290', nome:'CONTRIM COMERCIAL LTDA' },
+    { cd:'Z00043', nome:'CONVERGE ENGENHARIA ASSEC. PROJ. LTDA.' },
+    { cd:'R00140', nome:'CRISTIANE REIS DE MELO RAMOS - ME' },
+    { cd:'R00161', nome:'CV MANTELATO – ME' },
+    { cd:'ARQ015', nome:'CYPRIANA PINHEIRO MEDEIROS DE ARAUJO2,5%' },
+    { cd:'R00152', nome:'D & S REPRESENTACAO DE MAT P/ CONSTRUCAO' },
+    { cd:'R00130', nome:'D.J REPRESENTACOES LTDA' },
+    { cd:'R00182', nome:'DAJOL REPRESENTACOES LTDA - ME' },
+    { cd:'R00132', nome:'DAJOL REPRESENTACOES LTDA – ME' },
+    { cd:'S00023', nome:'DALIRIA FABIOLA E DA SILVA' },
+    { cd:'VS0023', nome:'DALIRIA FABIOLA E DA SILVA' },
+    { cd:'Z00044', nome:'DANIEL / RENATA REPRES.' },
+    { cd:'V00026', nome:'DANIELA KARINE L.OLIVEIRA(EX-FUNCIONARIA' },
+    { cd:'S00019', nome:'DANIELLY DOS  SANTOS  MACEDO' },
+    { cd:'VS0019', nome:'DANIELLY DOS  SANTOS  MACEDO' },
+    { cd:'Z00045', nome:'DAVI - PROMOTOR' },
+    { cd:'V00178', nome:'DAYSIAN LANA DE SOUSA' },
+    { cd:'Z00046', nome:'DEBORA DOS SANTOS' },
+    { cd:'ARQ006', nome:'DEBORA JULINDA' },
+    { cd:'Z00047', nome:'DECIO PRATES DE ALBUQUERQUE' },
+    { cd:'Z00048', nome:'DECOR FACHADA REVEST.REPRES.COMERCIAL SC' },
+    { cd:'R00013', nome:'DECORAARTE SERV. DE REVEST. TEXT. LTDA' },
+    { cd:'Z00049', nome:'DELTA REPRESENTACOES LTDA.' },
+    { cd:'V00117', nome:'DEMETRIO VASCONCELOS DOS SANTOS' },
+    { cd:'Z00050', nome:'DEMETRIUS PROENCA MENDES' },
+    { cd:'Z00051', nome:'DEODATO & ASSOCIADOS CONS.COML.S/C LTDA' },
+    { cd:'R00014', nome:'DEUSIMAR MOREIRA MOURA' },
+    { cd:'R000DF', nome:'DF DISTRIBUIDORA REPRESENTACOES' },
+    { cd:'G00002', nome:'DIJAN DE BARROS (GERENTE COMERCIAL)' },
+    { cd:'SG0002', nome:'DIJAN DE BARROS (GERENTE COMERCIAL)' },
+    { cd:'VSG002', nome:'DIJAN DE BARROS (GERENTE COMERCIAL)' },
+    { cd:'Z00052', nome:'DIKEN RESTIMENTOS LTDA.' },
+    { cd:'V00130', nome:'DIOGO RODRIGUES WANDERLEY' },
+    { cd:'V00011', nome:'DIONE AMERICO DE OLIVEIRA' },
+    { cd:'Z00053', nome:'DIONE BALEEIRO SCHMIDT' },
+    { cd:'D00110', nome:'DIRETO - AFA' },
+    { cd:'D00036', nome:'DIRETO - AM COMERCIAL' },
+    { cd:'D00131', nome:'DIRETO - BWC SALVADOR' },
+    { cd:'D00032', nome:'DIRETO - CASAS JARDIM' },
+    { cd:'D00034', nome:'DIRETO - ENCONTRO DO SOL' },
+    { cd:'Z00289', nome:'DIRETO - GILSON' },
+    { cd:'D00050', nome:'DIRETO - IBRATIN BAHIA' },
+    { cd:'D00040', nome:'DIRETO - IBRATIN CENTRO OESTE' },
+    { cd:'D00030', nome:'DIRETO - IBRATIN NORDESTE' },
+    { cd:'D00010', nome:'DIRETO - IBRATIN SP' },
+    { cd:'D00011', nome:'DIRETO - LEROY (ACORDO / BONIFICACAO)' },
+    { cd:'D00037', nome:'DIRETO - LEROY MERLIN' },
+    { cd:'Z00288', nome:'DIRETO - LITORAL NORTE' },
+    { cd:'D00132', nome:'DIRETO - LOJA IBRATIN RECIFE' },
+    { cd:'D00008', nome:'DIRETO - LOJAS DE DECORACAO E TINTEIRAS' },
+    { cd:'D00120', nome:'DIRETO - MAF' },
+    { cd:'D00031', nome:'DIRETO - MRV' },
+    { cd:'D00014', nome:'DIRETO - PRIVATE LABEL' },
+    { cd:'D00060', nome:'DIRETO - VIMA' },
+    { cd:'D00041', nome:'DIRETO DNZ' },
+    { cd:'D00035', nome:'DIRETO E-COMMERCE NE' },
+    { cd:'D00013', nome:'DIRETO E-COMMERCE SP' },
+    { cd:'D00033', nome:'DIRETO INTERNO' },
+    { cd:'D00015', nome:'DIRETO MERCADO LIVRE' },
+    { cd:'D00012', nome:'DIRETO VAREJO' },
+    { cd:'ARQ012', nome:'DORIAN JORGE F. DE ANDRADE CABRAL 2,5%' },
+    { cd:'S00042', nome:'DOUGLAS CHAGAS MARTINS' },
+    { cd:'VS0042', nome:'DOUGLAS CHAGAS MARTINS' },
+    { cd:'V00012', nome:'DRAYLTON RAPHAEL' },
+    { cd:'V00020', nome:'DRAYTON RAFHAEL DAVID DOS SANTOS' },
+    { cd:'R00915', nome:'DUARTE E NEVES REPRESENTACOES LTDA' },
+    { cd:'R00117', nome:'E  PARAIZO ASSESSORIA DE VENDAS LTDA' },
+    { cd:'Z00054', nome:'E.G. REPRES. PRESTACOES SERVICOES LTDA.' },
+    { cd:'S00040', nome:'EDEN SOUZA' },
+    { cd:'V00090', nome:'EDEN SOUZA' },
+    { cd:'V00122', nome:'EDILSON SOUZA SOARES' },
+    { cd:'R00602', nome:'EDM REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'R00188', nome:'EDMARCAS REPRESENTACOES LTDA' },
+    { cd:'Z00055', nome:'EDMUNDO VIEIRA LIMA JUNIOR' },
+    { cd:'VS0039', nome:'EDNA APARECIDA SANTOS CASTRO' },
+    { cd:'S00048', nome:'EDNA APARECIDA SANTOS CASTRO' },
+    { cd:'V00221', nome:'EDSON EVANGELISTA' },
+    { cd:'Z00056', nome:'EDUARDO DOS SANTOS VITORIO JUNIOR' },
+    { cd:'Z00057', nome:'EDUARDO GAMA NETO  ( EX-FUNCIONARIO )' },
+    { cd:'Z00294', nome:'EDUARDO VALVERDE' },
+    { cd:'R00172', nome:'EFICIENCIA COMERCIAL E REPRESENTACAO' },
+    { cd:'R00195', nome:'EFICIENCIA COMERCIAL E REPRESENTACAO-LB' },
+    { cd:'R00192', nome:'EFICIENCIA COMERCIAL E REPRESENTACAO-VA' },
+    { cd:'V00013', nome:'EISENHOWER SANTOS DE OLIVEIRA' },
+    { cd:'Z00058', nome:'ELAINE - LOJAS' },
+    { cd:'V00797', nome:'ELIAB JOSE BORGES' },
+    { cd:'Z00292', nome:'ELIAS MADI' },
+    { cd:'V00014', nome:'ELIZANE CARVALHO' },
+    { cd:'R00361', nome:'ELO FORTE REPRESENTAÇÕES LTDA – ME' },
+    { cd:'V00015', nome:'ELURDIANE GETTNER' },
+    { cd:'Z00059', nome:'EMANOEL CLECIO PACHECO (EX-FUNCIONARIO)' },
+    { cd:'ARQ024', nome:'EMANUELA SOUZA BOMFIM 2,5%' },
+    { cd:'V00016', nome:'EMILENE ROSTIROLA' },
+    { cd:'V00118', nome:'EMILIO JORGE CIUFFI' },
+    { cd:'V00017', nome:'EMILIO MARCOS ALBERTY' },
+    { cd:'Z00060', nome:'EMILTON ALEXANDRE DE ALENCAR TENORIO' },
+    { cd:'Z00061', nome:'ENGEART ENGENHARIA E REPRESENTACOES LTDA' },
+    { cd:'Z00062', nome:'ENGEBAZZI CONSTR.E ENGA.LTDA.' },
+    { cd:'Z00063', nome:'ENGECORES SERVICOS COM. E REPRES. LTDA.' },
+    { cd:'Z00064', nome:'ENGEX - ENGENHARIA E COMERCIO LTDA.' },
+    { cd:'Z00065', nome:'EQUILIBRIO SERVICOS REPRESENTACOES LTDA.' },
+    { cd:'Z00066', nome:'ESCADA TINTAS COMERCIAL LTDA' },
+    { cd:'R00174', nome:'ESCALA REPRESENTACOES LTDA' },
+    { cd:'R00902', nome:'ESCRITORIO MACEDO' },
+    { cd:'ARQ022', nome:'ESPACO ARQUITETURA E CONST. LTDA' },
+    { cd:'Z00067', nome:'ESPACO CASA' },
+    { cd:'R00112', nome:'ESTEPHANIO REPRESENTANTES COMERCIAIS LTD' },
+    { cd:'R00124', nome:'ESTRUTURAL REPRESENTACOES LTDA - ME' },
+    { cd:'Z00068', nome:'EUCIDEMAR DA SILVA COELHO' },
+    { cd:'R00575', nome:'EUROREVEST COM. MAT. CONST. LTDA.' },
+    { cd:'VS0336', nome:'EVANDRO ANTUNES DOS SANTOS' },
+    { cd:'SG0336', nome:'EVANDRO ANTUNES DOS SANTOS' },
+    { cd:'ARQ033', nome:'EXPEDITO ARRUDA' },
+    { cd:'R00021', nome:'F.FIORETTI & TARDIN' },
+    { cd:'R00948', nome:'F.LOSS REPRESENTACOES LTDA' },
+    { cd:'PROM03', nome:'FABIANA REBOUCAS COELHO' },
+    { cd:'Z00295', nome:'FABIANE M C LIMA REPRESENTACOES' },
+    { cd:'Z00069', nome:'FABIO RAMALHO' },
+    { cd:'V00018', nome:'FABIO VINICIUS BARRETO DE ALMEIDA' },
+    { cd:'Z00070', nome:'FABIOLA OCCENSTEIN' },
+    { cd:'G00005', nome:'FABRICIO ALBUQUERQUE MEDEIROS' },
+    { cd:'VSG005', nome:'FABRICIO ALBUQUERQUE MEDEIROS' },
+    { cd:'SG0005', nome:'FABRICIO ALBUQUERQUE MEDEIROS' },
+    { cd:'Z00293', nome:'FABRIQUE TECNOLOGIA EM OBRAS LTDA' },
+    { cd:'R00069', nome:'FACE REPRESENTACAO COMERCIAL' },
+    { cd:'Z00071', nome:'FARIAS REPRESENTACOES LTDSA' },
+    { cd:'S00133', nome:'FELIPE  RAFAEL MELO' },
+    { cd:'VS0133', nome:'FELIPE RAFAEL MELO' },
+    { cd:'R00128', nome:'FEMAVA GALINDO REPRESENTACOES' },
+    { cd:'D00016', nome:'FERNANDA - TESTE CRM' },
+    { cd:'R00020', nome:'FERNANDES & MARQUES LTDA ME' },
+    { cd:'R00164', nome:'FERNANDO ANTONIO GASPARETTO REPRES' },
+    { cd:'Z00072', nome:'FERNANDO FRANCISCO PEREIRA DA SILVA' },
+    { cd:'V00019', nome:'FERNANDO JORGE DA SILVA BARBOSA' },
+    { cd:'Z00073', nome:'FERNANDO LUIZ A. TEIXEIRA' },
+    { cd:'V00023', nome:'FERNANDO PLENTZ' },
+    { cd:'Z00074', nome:'FERRARETO & CABRAL LTDA.' },
+    { cd:'R00168', nome:'FIMASA  REPRESENTACOES LTDA ME' },
+    { cd:'R00113', nome:'FINESTRA ARQUITETURA E REPRESENTACOES' },
+    { cd:'Z00075', nome:'FIRENZE PINT.GES.E DEC.LTDA' },
+    { cd:'Z00076', nome:'FLAVIA - LOJAS' },
+    { cd:'R00022', nome:'FLAVIO AUGUSTO DA SILVA GUIMARAES' },
+    { cd:'Z00077', nome:'FLAVIO LUIZ BENITO BASTIANELI' },
+    { cd:'G00012', nome:'FLAVIO OCANA DEL DELBBIO' },
+    { cd:'S00015', nome:'FLAVIO OCANA DEL DELBBIO' },
+    { cd:'VS0015', nome:'FLAVIO OCANA DEL DELBBIO' },
+    { cd:'V00323', nome:'FLAVIO RODRIGO A DA SILVA' },
+    { cd:'Z00078', nome:'FLAVIO SILVA TABOSA' },
+    { cd:'R00023', nome:'FORMACAMP REPR. COM. M CONST.CIVIL LTDA' },
+    { cd:'V00094', nome:'FRANCISCO  JOSÉ GIGLIO PINHEIRO' },
+    { cd:'V00120', nome:'FRANCISCO DE A DA CONCEICAO' },
+    { cd:'Z00079', nome:'FRANCISCO DE A.L. FILHO(EX-FUNCIONARIO)' },
+    { cd:'V00107', nome:'FRANCISCO E CANDIDO LTDA' },
+    { cd:'R00111', nome:'FRANCISCO E CANDIDO LTDA-ME' },
+    { cd:'Z00080', nome:'FRANCISCO- IBR SP' },
+    { cd:'S00131', nome:'FRANCISCO RICARDO E SILVA JUNIOR' },
+    { cd:'VS0131', nome:'FRANCISCO RICARDO E SILVA JUNIOR' },
+    { cd:'R00086', nome:'FRIDA REPRESENTAÇÕES LTDA' },
+    { cd:'Z00081', nome:'FRIGO E MURATORI COMERCIO E REPR. LTDA.' },
+    { cd:'Z00082', nome:'FROMAR REPRESENTA€åES LTDA' },
+    { cd:'R00146', nome:'FSF REPRESENTACOES LTDA - ME' },
+    { cd:'Z00083', nome:'G & G FLORICULTURA E PAISAGISMO LTDA' },
+    { cd:'Z00084', nome:'G & M REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'Z00085', nome:'GABIONORTE MINAS MINAS ARQTRA.ENGA.LTDA.' },
+    { cd:'V00127', nome:'GALEGUINHO CAIEIRAS' },
+    { cd:'VGA015', nome:'GALEGUINHO CAJAMAR' },
+    { cd:'VGA016', nome:'GALEGUINHO CAMBORIU' },
+    { cd:'VGA162', nome:'GALEGUINHO CAMBORIU' },
+    { cd:'VGA010', nome:'GALEGUINHO CAMPINAS' },
+    { cd:'VGA008', nome:'GALEGUINHO CARAPICUIBA' },
+    { cd:'VGA012', nome:'GALEGUINHO FCO MORATO' },
+    { cd:'VGA013', nome:'GALEGUINHO GUARULHOS' },
+    { cd:'VGA009', nome:'GALEGUINHO JUNDIAI' },
+    { cd:'VGA011', nome:'GALEGUINHO RIO DE JANEIRO' },
+    { cd:'VGA11', nome:'GALEGUINHO RIO DE JANEIRO' },
+    { cd:'Z00086', nome:'GASPAR E MADUREIRA LTDA.' },
+    { cd:'Z00087', nome:'GEISA - VALINHOS' },
+    { cd:'PIN008', nome:'GENIVAL NUNES DE OLIVEIRA' },
+    { cd:'V00128', nome:'GERALDO CAVALCANTE' },
+    { cd:'G99999', nome:'GERENTE TESTE' },
+    { cd:'Z00088', nome:'GERMANA DIAS' },
+    { cd:'Z00089', nome:'GERONIMO SANTOS ARELANA VILCHES' },
+    { cd:'Z00291', nome:'GIL REPRESENTACOES LTDA' },
+    { cd:'Z00090', nome:'GIL REPRESENTACOES LTDA' },
+    { cd:'Z00091', nome:'GILBERTO ANTONIO DE C. FERREIRA' },
+    { cd:'ARQ014', nome:'GILBERTO GUEDES 2,5%' },
+    { cd:'V00021', nome:'GILMAR' },
+    { cd:'R00025', nome:'GILSON LOPES NOVAIS' },
+    { cd:'V00095', nome:'GILSON MARCOS TAVARES BARROS' },
+    { cd:'VS0034', nome:'GIPSON LUSTOSA CABRAL JUNIOR' },
+    { cd:'ARQ010', nome:'GIRLENE BARBOSA DA SILVA' },
+    { cd:'Z00092', nome:'GIULLIANO POLITO' },
+    { cd:'R00156', nome:'GLAILTON MICHELSON FRANCISCO SILVA - ME' },
+    { cd:'Z00093', nome:'GONZALES & MILANI LTDA' },
+    { cd:'R00954', nome:'GP REPRESENTACAO DE MATERIAIS DE CONSTRU' },
+    { cd:'R00154', nome:'GR3 REPRESENTACOES EIRELI - ME' },
+    { cd:'Z00094', nome:'GRAFIART COM.E REPRESENTACOES' },
+    { cd:'R00400', nome:'GRAPIUNA REPRESENTAÇOES E COMERCIO DE MA' },
+    { cd:'R00091', nome:'GREEN LAND COMERCIO E REPRESENTACOES LTD' },
+    { cd:'R00026', nome:'GROUP METALS REPRESENTACAO COMERCIAL LTD' },
+    { cd:'R00933', nome:'GUARUCORES PERMUTA' },
+    { cd:'R00027', nome:'GUARUCORES REPRESENTACOES LTDA' },
+    { cd:'R00102', nome:'GUIA REPRES E SOLUCOES CONSTRUTIVAS LTDA' },
+    { cd:'R00082', nome:'GUILHERME DE CARVALHO' },
+    { cd:'R00950', nome:'H.A. CONSTRUCOES E REFORMAS LTDA' },
+    { cd:'R00287', nome:'H3 REPRESENTACAO COMERCIAL LTDA' },
+    { cd:'R00187', nome:'H3 REPRESENTACAO COMERCIAL LTDA' },
+    { cd:'R00910', nome:'HAMASHIA REPRES. LTDA' },
+    { cd:'V00798', nome:'HELENILDO LEITE DA SILVA' },
+    { cd:'S00022', nome:'HENRIQUE ALEXANDRE PLA LAKATOS' },
+    { cd:'VS0022', nome:'HENRIQUE ALEXANDRE PLA LAKATOS' },
+    { cd:'SV0022', nome:'HENRIQUE ALEXANDRE PLA LAKATOS' },
+    { cd:'V00022', nome:'HERICKE DAVID FRANCA DOS SANTOS' },
+    { cd:'S00004', nome:'HILARIO COSTA NETTO' },
+    { cd:'R00028', nome:'HONDA REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'V00024', nome:'HUMBERTO  MEDEIROS DE AZEVEDO FILHO' },
+    { cd:'Z00113', nome:'I' },
+    { cd:'Z00112', nome:'I' },
+    { cd:'Z00111', nome:'I' },
+    { cd:'Z00110', nome:'I' },
+    { cd:'Z00109', nome:'I' },
+    { cd:'Z00108', nome:'I' },
+    { cd:'Z00107', nome:'I' },
+    { cd:'Z00106', nome:'I' },
+    { cd:'Z00105', nome:'I' },
+    { cd:'Z00104', nome:'I' },
+    { cd:'Z00103', nome:'I' },
+    { cd:'Z00102', nome:'I' },
+    { cd:'Z00101', nome:'I' },
+    { cd:'Z00100', nome:'I' },
+    { cd:'Z00099', nome:'I' },
+    { cd:'Z00098', nome:'I' },
+    { cd:'Z00096', nome:'I' },
+    { cd:'Z00170', nome:'I' },
+    { cd:'Z00168', nome:'I' },
+    { cd:'Z00167', nome:'I' },
+    { cd:'Z00166', nome:'I' },
+    { cd:'Z00164', nome:'I' },
+    { cd:'Z00162', nome:'I' },
+    { cd:'Z00161', nome:'I' },
+    { cd:'Z00160', nome:'I' },
+    { cd:'Z00158', nome:'I' },
+    { cd:'Z00152', nome:'I' },
+    { cd:'Z00150', nome:'I' },
+    { cd:'Z00147', nome:'I' },
+    { cd:'Z00146', nome:'I' },
+    { cd:'Z00132', nome:'I' },
+    { cd:'Z00097', nome:'I' },
+    { cd:'Z00095', nome:'I' },
+    { cd:'Z00143', nome:'I' },
+    { cd:'Z00169', nome:'I' },
+    { cd:'Z00165', nome:'I' },
+    { cd:'Z00163', nome:'I' },
+    { cd:'Z00159', nome:'I' },
+    { cd:'Z00157', nome:'I' },
+    { cd:'Z00156', nome:'I' },
+    { cd:'Z00155', nome:'I' },
+    { cd:'Z00154', nome:'I' },
+    { cd:'Z00153', nome:'I' },
+    { cd:'Z00151', nome:'I' },
+    { cd:'Z00149', nome:'I' },
+    { cd:'Z00148', nome:'I' },
+    { cd:'Z00145', nome:'I' },
+    { cd:'Z00144', nome:'I' },
+    { cd:'Z00142', nome:'I' },
+    { cd:'Z00141', nome:'I' },
+    { cd:'Z00140', nome:'I' },
+    { cd:'Z00139', nome:'I' },
+    { cd:'Z00138', nome:'I' },
+    { cd:'Z00137', nome:'I' },
+    { cd:'Z00136', nome:'I' },
+    { cd:'Z00135', nome:'I' },
+    { cd:'Z00134', nome:'I' },
+    { cd:'Z00133', nome:'I' },
+    { cd:'Z00131', nome:'I' },
+    { cd:'Z00130', nome:'I' },
+    { cd:'Z00129', nome:'I' },
+    { cd:'Z00128', nome:'I' },
+    { cd:'Z00127', nome:'I' },
+    { cd:'Z00126', nome:'I' },
+    { cd:'Z00125', nome:'I' },
+    { cd:'Z00124', nome:'I' },
+    { cd:'Z00123', nome:'I' },
+    { cd:'Z00122', nome:'I' },
+    { cd:'Z00121', nome:'I' },
+    { cd:'Z00120', nome:'I' },
+    { cd:'Z00119', nome:'I' },
+    { cd:'Z00118', nome:'I' },
+    { cd:'Z00117', nome:'I' },
+    { cd:'Z00116', nome:'I' },
+    { cd:'Z00115', nome:'I' },
+    { cd:'Z00114', nome:'I' },
+    { cd:'R00178', nome:'I.A COMERCIO E REPRESENTACOES EIRELLI' },
+    { cd:'V00025', nome:'IANA NOGUEIRA' },
+    { cd:'Z00171', nome:'IBRATIN - DIRETO MG' },
+    { cd:'Z00172', nome:'IBRATIN - DIRETO MS' },
+    { cd:'Z00173', nome:'IBRATIN - DIRETO PR' },
+    { cd:'Z00174', nome:'IBRATIN - DIRETO RJ' },
+    { cd:'Z00175', nome:'IBRATIN - DIRETO SP FLAVIA' },
+    { cd:'Z00176', nome:'IBRATIN - DIRETO VITORIA' },
+    { cd:'Z00177', nome:'IBRATIN DIRETO - CURITIBA' },
+    { cd:'Z00178', nome:'IBRATIN DIRETO SP - FABIANA' },
+    { cd:'Z00179', nome:'IBRATIN DIRETO SP - ROSELI' },
+    { cd:'Z00180', nome:'IBRATIN DIRETO SP DOUGLAS' },
+    { cd:'Z00181', nome:'IBRATIN-CENTRO OESTE' },
+    { cd:'V00028', nome:'IGOR MARCIO CRUZ DA SILVA' },
+    { cd:'R00922', nome:'IMPACTO REPRESENTAÇÕES' },
+    { cd:'Z00182', nome:'IMPERMEAR ENG. LTDA' },
+    { cd:'Z00183', nome:'INALDO FRANCISCO DE LIMA' },
+    { cd:'Z00184', nome:'INDUTIVA PROJETOS E REPRESENTACOES LTDA.' },
+    { cd:'R00029', nome:'INVESTY CITY DO BRASIL LTDA' },
+    { cd:'S00017', nome:'IONE BARBOSA SILVA' },
+    { cd:'VS0017', nome:'IONE BARBOSA SILVA' },
+    { cd:'ARQ002', nome:'IRIS GALVAO' },
+    { cd:'ARQ028', nome:'IRIS GALVAO 2%' },
+    { cd:'PROM01', nome:'ISABELA DE SOUSA DOS SANTOS' },
+    { cd:'Z00185', nome:'ITALO CESAR BEZERRA DA SILVA- ME' },
+    { cd:'V00882', nome:'IVANILDO GOMES MESQUITA' },
+    { cd:'R00882', nome:'IVANILDO GOMES MESQUITA' },
+    { cd:'Z00186', nome:'IVO BOGDAN' },
+    { cd:'R00030', nome:'J A REPRESENTACOES LTDA' },
+    { cd:'R00832', nome:'J L SANTOS COMERCIO E REPRESENTACOES LTD' },
+    { cd:'R00301', nome:'J VICTOR REPRESENTAÇÕES LTDA' },
+    { cd:'R00176', nome:'J.A CAMELO DE OLIVEIRA JUNIOR' },
+    { cd:'R00031', nome:'J.B.S COMERCIO E REPRESENTACOES LTDA' },
+    { cd:'Z00187', nome:'J.B.SERVICOS E REPRESENTACOES' },
+    { cd:'R00093', nome:'J.C COBRA REPRESENTACAO COMERCIAL' },
+    { cd:'Z00188', nome:'J.C.FERREIRA REPRESENTACOES LTDA.' },
+    { cd:'R00921', nome:'JABUD REPRESENTACOES LTDA' },
+    { cd:'V00791', nome:'JACKSON PEDRO DA SILVA' },
+    { cd:'R00169', nome:'JAF CONSULTORIA EMPRESARIAL LTDA - ME' },
+    { cd:'R00032', nome:'JAILTON BEZERRA FILHO' },
+    { cd:'VS0011', nome:'JAIRO CARNEIRO DE SANTANA' },
+    { cd:'R00579', nome:'JAIRO OSCAR DO NASCIMENTO' },
+    { cd:'V00105', nome:'JAKELYNE RODRIGUES DA SILVA' },
+    { cd:'V00621', nome:'JAKSON HENRIQUE ALVES DE SOUZA' },
+    { cd:'S00038', nome:'JAKSON HENRIQUE ALVES DE SOUZA' },
+    { cd:'VS0038', nome:'JAKSON HENRIQUE ALVES DE SOUZA' },
+    { cd:'V00140', nome:'JAKSON HENRIQUE ALVES DE SOUZA' },
+    { cd:'V00029', nome:'JAN CARLOS' },
+    { cd:'V00794', nome:'JANUI ALVES DO NASCIMENTO' },
+    { cd:'V00106', nome:'JAQUELINE GURGEL PEREIRA' },
+    { cd:'Z00189', nome:'JARBAS DE CARVALHO' },
+    { cd:'R00060', nome:'JCM REPRESENTAÇÃO COMERCIAL' },
+    { cd:'V00030', nome:'JEFERSON AMAURY DA SILVA' },
+    { cd:'R00159', nome:'JEFERSON CARLOS DA COSTA CONSULTORIA' },
+    { cd:'S00041', nome:'JEFFERSON MARTINATTI' },
+    { cd:'VS0041', nome:'JEFFERSON MARTINATTI' },
+    { cd:'R00033', nome:'JEQUIE' },
+    { cd:'R00947', nome:'JESUS RAMON MARTIN MARQUEZ REPRESENTACAO' },
+    { cd:'R00300', nome:'JETAPE REP E COMERCIO DE EMBAL LTD' },
+    { cd:'R00920', nome:'JJB REPRESENTAÇÃO COMERCIAL LTDA' },
+    { cd:'R00930', nome:'JMF REPRESENTACOES LTD' },
+    { cd:'V00032', nome:'JOAO CARLOS ANDRADE SANTOS' },
+    { cd:'V00114', nome:'JOAO CARLOS E DE ALBUQUERQUE' },
+    { cd:'V00031', nome:'JOAO CARLOS ELIAS DE ALBUQUERQUE' },
+    { cd:'R00150', nome:'JOAO DUTRA REPRESENTACOES EIRELI - ME' },
+    { cd:'V00914', nome:'JOÃO FABIO MAIA BURITY' },
+    { cd:'VS0010', nome:'JOAO JOSE BARROS LEITE' },
+    { cd:'Z00190', nome:'JOAQUIM-IBRATIN GALENO' },
+    { cd:'V00098', nome:'JOELSON CRISTIANO FERREIRA DOS SANTOS' },
+    { cd:'Z00296', nome:'JOIR BASTOS DE SOUZA' },
+    { cd:'V00831', nome:'JONHNNY ALEX MENDES SILVA SANTOS' },
+    { cd:'V00109', nome:'JORGE LUIZ FERREIRA' },
+    { cd:'PIN006', nome:'JORGE MAMEDE DA SILVA' },
+    { cd:'PIN003', nome:'JOSE ADEMIR RODRIGUES DOS SANTOS' },
+    { cd:'PIN009', nome:'JOSÉ ALDO DOS SANTOS' },
+    { cd:'Z00191', nome:'JOSE ALEXANDRE GONCALVES' },
+    { cd:'Z00192', nome:'JOSE ANTONIO DEODATO DE REZENDE FILHO' },
+    { cd:'V00137', nome:'JOSE ARENA CAMELO DE OLIVEIRA' },
+    { cd:'G00008', nome:'JOSE ARENA CAMELO DE OLIVEIRA' },
+    { cd:'SG0008', nome:'JOSE ARENA CAMELO DE OLIVEIRA' },
+    { cd:'VSG008', nome:'JOSE ARENA CAMELO DE OLIVEIRA' },
+    { cd:'R00035', nome:'JOSE ARLECIO DILVA DE OLIVEIRA' },
+    { cd:'Z00193', nome:'JOSE CARLOS DA SILVA' },
+    { cd:'R00144', nome:'JOSE CARLOS DA SILVA ACIOLI - ME' },
+    { cd:'R00012', nome:'JOSE DE ARIMATEA RIBEIRO DE MORAES' },
+    { cd:'R00036', nome:'JOSE DE ARIMATEA RIBEIRO MORAES' },
+    { cd:'R00104', nome:'JOSE GERALDO TOLEDO 21686149620 - ME' },
+    { cd:'ARQ020', nome:'JOSE GESSI DE BRITO SOUZA 2%' },
+    { cd:'Z00194', nome:'JOSE GUTTEMBERG MILET ALBUQUERQUE' },
+    { cd:'V00078', nome:'JOSE HAILTON BEZERRA PINTO' },
+    { cd:'V00135', nome:'JOSE HAILTON BEZERRA PINTO' },
+    { cd:'V00033', nome:'JOSE MATIAS DOS SANTOS JUNIOR' },
+    { cd:'V00116', nome:'JOSE MONTEIRO FILHO' },
+    { cd:'Z00195', nome:'JOSE NOBRE DE CAMPOS JUNIOR' },
+    { cd:'V00034', nome:'JOSE PAZ DE OLIVEIRA' },
+    { cd:'PIN001', nome:'JOSE REINALDO MELO DOS SANTOS' },
+    { cd:'VS0025', nome:'JOSE REINALDO NASCIMENTO VIANA' },
+    { cd:'S00025', nome:'JOSE REINALDO NASCIMENTO VIANA' },
+    { cd:'PROM07', nome:'JOSE VINICIUS SANTOS SOARES' },
+    { cd:'V00035', nome:'JOSE WAGNO DE OLIVEIRA JR.' },
+    { cd:'ARQ025', nome:'JOSETE CLAUDINO MARTINS' },
+    { cd:'V00036', nome:'JOSIAS FRANCISCO SANTANA PASSOS' },
+    { cd:'Z00196', nome:'JOSIE MARIA DA SILVA' },
+    { cd:'R00037', nome:'JOTAEFE COMERCIO E REPRESENTACOES LTDA' },
+    { cd:'R00034', nome:'JOTAEFE COMERCIO E REPRESENTACOES REVEND' },
+    { cd:'Z00297', nome:'JOTH REPRESENTAÇÕES COMERCIAIS LTDA' },
+    { cd:'R00148', nome:'JP DINIZ FREIRE REPRESENTACAO COMERCIAL' },
+    { cd:'V00037', nome:'JULIANA CHRISTINA LUPPI RIBAS' },
+    { cd:'ARQ035', nome:'JULIANO LEITE' },
+    { cd:'R00039', nome:'JULIANO PAES REPRES.DE TINTAS E REVEST.' },
+    { cd:'R00081', nome:'JULIETA DE FATIMA  LALOR MOTA ALMEIRA' },
+    { cd:'R00908', nome:'JULIO CESAR VELHO 46104364934' },
+    { cd:'Z00197', nome:'JULIO CEZAR DAIBERT' },
+    { cd:'V00102', nome:'JULLE EMERSON NOGUEIRA DA SILVA' },
+    { cd:'R00040', nome:'JUMAR DE ARRUDA MIRANDA' },
+    { cd:'Z00198', nome:'JUNOT COUTO CARVALHO' },
+    { cd:'R00907', nome:'JVR MOURAWAD CONSULTORIA DE VENDAS LTDA' },
+    { cd:'Z00199', nome:'JWC COMERCIO E REPRESENTACAO LTDA' },
+    { cd:'R00909', nome:'K.HEILMANN REPRESENTACOES LTDA' },
+    { cd:'V00038', nome:'KAREN ALESSANDRA VAREIRO VASQUES' },
+    { cd:'V00777', nome:'KARINE CORREIA UCHOA BARROS' },
+    { cd:'Z00200', nome:'KIDWARE INFORMATICA E SERV. S/C LTDA-EPP' },
+    { cd:'Z00201', nome:'L.C.G. ENG. COM. REPRESENTACOES LTDA.' },
+    { cd:'R00946', nome:'L2 REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'PROM06', nome:'LARISSA FERRO ROCHA' },
+    { cd:'V00790', nome:'LARYSSA FERNANDA DE BARROS VEIGA' },
+    { cd:'PROM08', nome:'LARYSSA FERNANDA DE BARROS VEIGA' },
+    { cd:'LD0001', nome:'LD - TERASSE' },
+    { cd:'DL0001', nome:'LD - TERASSE' },
+    { cd:'Z00298', nome:'LEANDRO BRANDAO NOGUEIRA' },
+    { cd:'S00047', nome:'LEANDRO DELGADO DE SOUZA' },
+    { cd:'VS0037', nome:'LEANDRO DELGADO DE SOUZA' },
+    { cd:'R00122', nome:'LEK EMPREENDIMENTOS IMOBILIARIOS S/S LTD' },
+    { cd:'R00119', nome:'LEMOS MWA REPRESENTACOES LTDA' },
+    { cd:'R00042', nome:'LEO REPRESENTACOES LTDA' },
+    { cd:'R00871', nome:'LEON REPRESENTAÇÕES' },
+    { cd:'R00043', nome:'LEONARDO & CUNHA REPRES. COMERCIAIS LTDA' },
+    { cd:'Z00202', nome:'LIANE PEDROSA DE OLIVEIRA ROSITER' },
+    { cd:'PROM05', nome:'LIDYANNE BARBOSA DE LIMA' },
+    { cd:'Z00203', nome:'LILIAN REPRESENTAçõES LTDA' },
+    { cd:'V00039', nome:'LIVIA LIMA' },
+    { cd:'R00108', nome:'LOJA QU4DRA HOME DESIGN' },
+    { cd:'R00110', nome:'LOJA QUADRA HOME DESIGN' },
+    { cd:'V00040', nome:'LOPES PINHEIRO' },
+    { cd:'V00833', nome:'LUCAS RIBEIRO DA SILVA CUNHA' },
+    { cd:'Z00204', nome:'LUCIANO CARVALHO DE ARAUJO' },
+    { cd:'V00041', nome:'LUCIANO DA CUNHA ROCHA' },
+    { cd:'V00042', nome:'LUCINALDO' },
+    { cd:'Z00205', nome:'LUIS ALEXANDRE DE SOUZA LIMA' },
+    { cd:'Z00206', nome:'LUIS GONZAGA MARTINS PALMA' },
+    { cd:'V00043', nome:'LUIS QUEIROZ DE ARAUJO' },
+    { cd:'Z00207', nome:'LUIZ ANTONIO DA S.OLIVEIRA-PROMOTOR' },
+    { cd:'V00044', nome:'LUIZ ARNALDO PRAZERES JUNIOR' },
+    { cd:'Z00208', nome:'LUIZ EDUARDO HONDA FLORES' },
+    { cd:'G00004', nome:'LUIZ FELIPE (GERENTE COMERCIAL)' },
+    { cd:'V00045', nome:'LUIZ FERNANDO DE MEDEIROS PEREIRA CORREI' },
+    { cd:'R00044', nome:'LUIZ GONZAGA ORTIZ DOS SANTOS' },
+    { cd:'VS0007', nome:'LUIZ ROMERO DA SILVA RAPOSO' },
+    { cd:'S00007', nome:'LUIZ ROMERO DA SILVA RAPOSO' },
+    { cd:'Z00209', nome:'LUIZ TADEU NUNES DE ANDRADE ME' },
+    { cd:'R00045', nome:'M & M PROJETOS E REPRESENTACOES LTDA' },
+    { cd:'R00284', nome:'M C M DE SOUZA REPRESENTACOES LTDA' },
+    { cd:'Z00210', nome:'M. FACTO - SERVICOS E REPRESENTACOES' },
+    { cd:'R00139', nome:'M. FRANK REPRESENTACAO COMERCIAL LTDA-ME' },
+    { cd:'Z00211', nome:'M.F. REPRESENTACOES LTDA.' },
+    { cd:'R00071', nome:'M.FRANK REPRESENTAÇÃO COMERCIAL LTDA-ME' },
+    { cd:'Z00212', nome:'M.T.A.REPRESENTACOES S/C LTDA' },
+    { cd:'R00181', nome:'MADECON REPRESENTACOES LTDA' },
+    { cd:'R00056', nome:'MAGNO WANDERLEY REPRESENTACOES LTDA - LB' },
+    { cd:'R00046', nome:'MAGNO WANDERLEY REPRESENTACOES LTDA.-ME' },
+    { cd:'Z00299', nome:'MANOEL MACHADO JUNIOR' },
+    { cd:'R00048', nome:'MARB REPRESENTACOES LTDA' },
+    { cd:'Z00213', nome:'MARCA ENGENHARIA LTDA' },
+    { cd:'Z00300', nome:'MARCELA BARRETO DE MORAIS' },
+    { cd:'V00027', nome:'MARCELA BARRETO DE MORAIS' },
+    { cd:'V00046', nome:'MARCELA DOS SANTOS PINHEIRO' },
+    { cd:'Z00214', nome:'MARCELLO & NICOLLE REPRES.S/C.LTDA.' },
+    { cd:'R00600', nome:'MARCELO CASTRO  ALVES' },
+    { cd:'V00915', nome:'MARCELO FERREIRA DA PONTE' },
+    { cd:'V00047', nome:'MARCELO FRANTZ' },
+    { cd:'Z00215', nome:'MARCELO JOSE GOMES DA ROCHA' },
+    { cd:'R00050', nome:'MARCELO RIBEIRO REPRESENTACOES LTDA' },
+    { cd:'SG0007', nome:'MARCELO SAMPAIO' },
+    { cd:'G00007', nome:'MARCELO SAMPAIO' },
+    { cd:'VSG007', nome:'MARCELO SAMPAIO' },
+    { cd:'Z00216', nome:'MARCELO SILIPPELLI' },
+    { cd:'ARQ003', nome:'MARCIA LIMA' },
+    { cd:'V00048', nome:'MARCIO BARRETO COELHO' },
+    { cd:'R00051', nome:'MARCIO GOMES DA SILVA' },
+    { cd:'R00578', nome:'MARCIO MACHADO CITRINI' },
+    { cd:'V00136', nome:'MARCIO RICARDO SANTOS DE OLIVEIRA' },
+    { cd:'V00133', nome:'MARCIO RICARDO SANTOS DE OLIVEIRA' },
+    { cd:'G00011', nome:'MARCO ANTONIO FRANCESCO ROLLERI' },
+    { cd:'SG0011', nome:'MARCO ANTONIO FRANCESCO ROLLERI' },
+    { cd:'R00100', nome:'MARCO POLO REVESTIMENTOS LTDA- EPP' },
+    { cd:'VS1133', nome:'MARCO VITORIO FRADE GREGHI' },
+    { cd:'S01133', nome:'MARCO VITORIO FRADE GREGHI' },
+    { cd:'V00049', nome:'MARCOS  GANEM' },
+    { cd:'ARQ013', nome:'MARCOS BARBOSA 2,5%' },
+    { cd:'Z00217', nome:'MARCOS FLAVIO FONTENELLE BARROS' },
+    { cd:'R00251', nome:'MARCOS MORAES' },
+    { cd:'Z00218', nome:'MARCOS ROBERTO MARQUES FERREIRA' },
+    { cd:'ARQ118', nome:'MARGARETTE SETENTA LACERDA 2,5%' },
+    { cd:'ARQ016', nome:'MARIA ALICE LOPES  2,5%' },
+    { cd:'ARQ120', nome:'MARIA AUGUSTA N. ALVES 3,0%' },
+    { cd:'ARQ007', nome:'MARIA DA CONCEICAO CANEL MACHADO' },
+    { cd:'V00795', nome:'MARIA DA GLORIA SOARES RIBEIRO DAMASCENO' },
+    { cd:'Z00219', nome:'MARIA JOSE VAZ' },
+    { cd:'Z00220', nome:'MARIANO JACINTO MARTIM MENDONCA' },
+    { cd:'Z00221', nome:'MARILIA CABRAL FERRARETTO' },
+    { cd:'ARQ036', nome:'MARILIA PORTELA DE OLIVEIRA' },
+    { cd:'Z00222', nome:'MARINO RIVOLTI' },
+    { cd:'R00919', nome:'MARIO KOETZ & CIA LTDA' },
+    { cd:'V00050', nome:'MARIO SATURNINO DA SILVA' },
+    { cd:'R00138', nome:'MARKESA' },
+    { cd:'ARQ017', nome:'MARLENE SOARES NOBRE 2,5%' },
+    { cd:'R00202', nome:'MARQUES LIMA REPRESENTACOES COMERCIA -LB' },
+    { cd:'R00162', nome:'MARQUES LIMA REPRESENTACOES COMERCIAIS L' },
+    { cd:'V00051', nome:'MASSIMO FUMEI' },
+    { cd:'Z00223', nome:'MATHEUS AQUINO JUNIOR' },
+    { cd:'R00118', nome:'MAUA REPRESENTACOES DE TINTAS E SERVICOS' },
+    { cd:'V00077', nome:'MAYARA ROCHA TOLEDO' },
+    { cd:'V00138', nome:'MAYARA ROCHA TOLEDO' },
+    { cd:'R00MCT', nome:'MCT CONSULTORIA E REPRESENTACOES LTDA' },
+    { cd:'Z00224', nome:'MENDES & ARAéJO LTDA' },
+    { cd:'R00183', nome:'MESTRA REPRES E CONSULTORIA EM ENG LTDA' },
+    { cd:'R00052', nome:'MF REPRESENTACOES LTDA' },
+    { cd:'V00799', nome:'MIKELINE DE ARAUJO MESQUITA COSTA' },
+    { cd:'V00789', nome:'MIKELINE DE ARAUJO MESQUITA COSTA' },
+    { cd:'R00965', nome:'MILAN DOWELL REPRESENTAÇOES LTDA' },
+    { cd:'R00083', nome:'MIMT REPRESENTAÇÕES' },
+    { cd:'Z00226', nome:'MISAEL RIBEIRO MORAES' },
+    { cd:'V00971', nome:'MJ NEGOCIOS DIGITAIS' },
+    { cd:'R00151', nome:'MM COMERCIO DE MATERIAIS DE CONSTRUCAO L' },
+    { cd:'R00281', nome:'MM REPRESENTAÇÕES' },
+    { cd:'Z00227', nome:'MOISES - CONSTRUTORAS' },
+    { cd:'R00114', nome:'MONTE ROCHA REPRESENTACOES LTDA' },
+    { cd:'R00916', nome:'MOVELE REPRESENTAÇÕES LTDA' },
+    { cd:'R00053', nome:'N C REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'V00702', nome:'NAOR LUCAS BITTENCOURT LOPES' },
+    { cd:'V00792', nome:'NATASHA TOMAZ DA SILVA FREIRE' },
+    { cd:'VS0024', nome:'NERIVAN  SOUSA PORTO' },
+    { cd:'SV0024', nome:'NERIVAN SOUSA PORTO' },
+    { cd:'S00024', nome:'NERIVAN SOUSA PORTO' },
+    { cd:'R00167', nome:'NETO & SILVEIRA REPRESENTACOES LTDA - ME' },
+    { cd:'R00116', nome:'NEVES PAIM REPRESENTACOES LTDA - ME' },
+    { cd:'R00911', nome:'NEW AGE REPRESENTACOES SBC LTDA' },
+    { cd:'V00177', nome:'NEYLOR ROBERTO DE FREITAS' },
+    { cd:'Z00228', nome:'NICOLA / SP.' },
+    { cd:'Z00229', nome:'NILO MARCELO REPRESENTACOES LTDA ME.' },
+    { cd:'Z00230', nome:'NILTON RIBEIRO' },
+    { cd:'Z00231', nome:'NILZA - GALENO' },
+    { cd:'PIN004', nome:'NIVALDO RODRIGUES DOS SANTOS' },
+    { cd:'R00191', nome:'NOGUEIRA REPRESENTACOES LTDA ME' },
+    { cd:'R00054', nome:'NORONHA REP DE MATL DE CONST LTDA' },
+    { cd:'R00180', nome:'NOVA FORMA REPRESENTAÇÕES S/C LTDA - ME' },
+    { cd:'R000NC', nome:'NOVACAMP REP DE MAT E FERRAGEM LTDA' },
+    { cd:'Z00232', nome:'NOZ REPRESENTAÇÕES LTDA' },
+    { cd:'VS0016', nome:'NUNO MIGUEL DAS CHAGAS ARAUJO' },
+    { cd:'S00016', nome:'NUNO MIGUEL DAS CHAGAS ARAUJO' },
+    { cd:'Z00233', nome:'NYELMA ALEXANDRE' },
+    { cd:'R00339', nome:'O COMANDO REPRESENTAÇÕES LTDA' },
+    { cd:'R00439', nome:'O COMANDO REPRESENTACOES LTDA LB' },
+    { cd:'Z00234', nome:'OLIVEIRA - RJ' },
+    { cd:'Z00235', nome:'OLIVEIRA LOPES REPRESENTACÖES' },
+    { cd:'ARQ019', nome:'OLIVIA PORONGABA ACIOLI DE OLIVEIRA 3,5%' },
+    { cd:'R00833', nome:'OMENA REPRESENTACOES & SERVICOS LTDA' },
+    { cd:'S00006', nome:'ORLANDO IRINEU DE O. JUNIOR' },
+    { cd:'R00055', nome:'OSVALDO FRANCO' },
+    { cd:'Z00236', nome:'OZANA SILVA' },
+    { cd:'Z00301', nome:'P. ERCOLE & CIA. LTDA.' },
+    { cd:'Z00237', nome:'P.R.M. IMP. REVEST. LTDA.' },
+    { cd:'SG0014', nome:'PAMELA FERREIRA DA SILVA' },
+    { cd:'S00049', nome:'PAMELA FERREIRA DA SILVA' },
+    { cd:'G00014', nome:'PAMELA FERREIRA DA SILVA' },
+    { cd:'VS0049', nome:'PAMELA FERREIRA DA SILVA' },
+    { cd:'Z00238', nome:'PASINI REPRESENTACOES COMERCIAIS LTDA.' },
+    { cd:'PROM02', nome:'PATRICIA COLLIER DE OLIVEIRA' },
+    { cd:'V00100', nome:'PAULA DAMIANA VILELA FARIAS' },
+    { cd:'PIN005', nome:'PAULO CESAR DA SILVA' },
+    { cd:'V00111', nome:'PAULO EDUARDO DE A. FALCAO' },
+    { cd:'Z00239', nome:'PAULO EDUARDO MOREIRA RAGONESI' },
+    { cd:'R00057', nome:'PAULO LISBOA REPRESENTACOES LTDA.' },
+    { cd:'ARQ032', nome:'PAULO MACEDO' },
+    { cd:'V00052', nome:'PAULO MAGALHÃES' },
+    { cd:'V00053', nome:'PAULO ROBERSON DA SILVA FAGUNDES' },
+    { cd:'V00322', nome:'PAULO VICTOR DE FREITAS DA SILVA' },
+    { cd:'V00054', nome:'PEDRO ABRUNHOZA SCARPA' },
+    { cd:'Z00240', nome:'PEDRO MACEDO DE LIMA III' },
+    { cd:'Z00241', nome:'PEDRO NATALE / IBRATIN GALENO SP' },
+    { cd:'R00084', nome:'PEREIRA & CIA LTDA' },
+    { cd:'R00951', nome:'PEREIRA & NEMITZ REPRESENTACAO COMERCIAL' },
+    { cd:'Z00242', nome:'PEREIRA LIMA E MORAES-REPRES. COM. LTDA,' },
+    { cd:'R00935', nome:'PG REPRESENTACOES COMERCIAIS' },
+    { cd:'R00058', nome:'PINTURE - COMERCIO E REPRESENTACAO LTDA' },
+    { cd:'Z00243', nome:'PINTURE COMERCIO REPRES. SERVICOS LTDA.' },
+    { cd:'Z00244', nome:'PLAPIN PLAZA COML. TINTAS E PINT. LTDA.' },
+    { cd:'R00059', nome:'PLENA REVESTIMENTOS E REPRESENTACOES LTD' },
+    { cd:'Z00302', nome:'PONTEX DE NITEROI - REVESTIMENTO LTDA' },
+    { cd:'R00917', nome:'PRAXEDES E BONE REPRESENTACAO LTDA' },
+    { cd:'Z00245', nome:'PRESTATIVA REPRESENTACOES LTDA' },
+    { cd:'V00796', nome:'PRISCILA TEIXEIRA DE JESUS BATISTA' },
+    { cd:'Z00246', nome:'PROJECT EMPREENDIMENTOS LTDA.' },
+    { cd:'R00061', nome:'PROJECTO PLANEJAMENTO E ASSESSORIA TECNI' },
+    { cd:'R00931', nome:'PTREIN REPRESENTACOES EIRELI-ME' },
+    { cd:'R00856', nome:'PVP REPRESENTAÇÕES E TREINAMENTOS - LB' },
+    { cd:'R00855', nome:'PVP REPRESENTAÇÕES E TREINAMENTOS LTDA' },
+    { cd:'V00123', nome:'R & R FERREIRA REPRESENTACOES LTDA - ME' },
+    { cd:'R00160', nome:'R&R FERREIRA REPRESENTACOES LIMITADA -ME' },
+    { cd:'R00170', nome:'R. BELLUOMINI REPRESENTACOES LTDA - ME' },
+    { cd:'R00062', nome:'R. MARQUES COMERCIO E REPRES.LTDA' },
+    { cd:'R00063', nome:'RAFAEL AMERICO DE OLIVEIRA' },
+    { cd:'V00055', nome:'RAFAEL AMERICO DE OLIVEIRA' },
+    { cd:'R00906', nome:'RAFAEL COELHO REPRESENTACOES COMERCIAIS' },
+    { cd:'V00125', nome:'RAFAEL NASCIMENTO DA PAZ' },
+    { cd:'R00088', nome:'RAIZES CONSTRUÇOES E REVESTIMENTOS LTDA' },
+    { cd:'R00283', nome:'RAYANNE LEITE GUIMARAES' },
+    { cd:'ARQ023', nome:'RBA ARQUITETURA LTDA' },
+    { cd:'V00056', nome:'REBECA KATHYUCHY MARIA SOARES DA SILVA' },
+    { cd:'R00064', nome:'RECONE-REP. E COMÉRCIO DO NORDESTE LTDA.' },
+    { cd:'S00071', nome:'REGIS MARCELO BASTOS LUMERTZ' },
+    { cd:'VS0071', nome:'RÉGIS MARCELO BASTOS LUMERTZ' },
+    { cd:'R00912', nome:'REINALDO SILVA CAMARGO REPRESENTAÇÕES LT' },
+    { cd:'Z00247', nome:'REIRIVEN ALVES DOURADO' },
+    { cd:'ARQ011', nome:'REJANE TORRES 2,5%' },
+    { cd:'S00011', nome:'RENATA CRISTINA DA SILVA' },
+    { cd:'Z00248', nome:'RENATA FIGUEIREDO' },
+    { cd:'R00097', nome:'RENATO C PEREIRA - ME' },
+    { cd:'V00321', nome:'RENATO LEONCIO DE BARROS DOS SANTOS' },
+    { cd:'G00022', nome:'RENATO MARINHEIRO' },
+    { cd:'SG0022', nome:'RENATO MARINHEIRO' },
+    { cd:'VS0012', nome:'RENIVAN JERONIMO DOS SANTOS' },
+    { cd:'Z00249', nome:'REPRESENTACOES HABIL LTDA' },
+    { cd:'R00115', nome:'REPRESENTANTE LEROY' },
+    { cd:'Z00250', nome:'RESAN REPRESENTACOES E COMERCIO LTDA.' },
+    { cd:'R00065', nome:'RESISTENCIA COM E REP LTDA' },
+    { cd:'Z00251', nome:'RESUL REPRES. SUDO LTDA' },
+    { cd:'Z00252', nome:'REVEST FLOOR DISTR.E REPRS. LTDA' },
+    { cd:'R00067', nome:'RF DO VALLE - ME' },
+    { cd:'R00190', nome:'RF97 REPRESENTACOES' },
+    { cd:'R00092', nome:'RGB CONSULTORIA E REPRESENTACOES COMERCI' },
+    { cd:'R00905', nome:'RGM REPRESENTAÇÕES' },
+    { cd:'R00944', nome:'RI COMERCIO E REPRESENTACOES LTDA - ME' },
+    { cd:'V00834', nome:'RICARDO BATISTA DE ARAUJO JUNIOR' },
+    { cd:'V00099', nome:'RICARDO DA SILVA PEREIRA' },
+    { cd:'V00631', nome:'RICARDO FERREIRA TENORIO' },
+    { cd:'S00030', nome:'RICARDO OLIVEIRA P A DE MELO' },
+    { cd:'VS0030', nome:'RICARDO OLIVEIRA PA DE MELO' },
+    { cd:'VS0027', nome:'RICARDO SILVA LOZANO' },
+    { cd:'S00027', nome:'RICARDO SILVA LOZANO' },
+    { cd:'Z00253', nome:'RICARDO SOARES DE SOUZA' },
+    { cd:'V00129', nome:'RICHARD MORRESQUE PORTO' },
+    { cd:'S00070', nome:'RITA DE CASSIA AMATO' },
+    { cd:'VS0070', nome:'RITA DE CASSIA AMATO' },
+    { cd:'V00059', nome:'ROBERTO NOGUEIRA' },
+    { cd:'Z00254', nome:'ROBERTO RODRIGUES LIMA' },
+    { cd:'V00060', nome:'ROBERTO SIMOES DE ALMEIDA PINA' },
+    { cd:'V00061', nome:'ROBERTO WILSON PEREIRA DE ARAUJO' },
+    { cd:'VS0043', nome:'ROBSON EMANOEL DE MATOS BRAGA' },
+    { cd:'V00112', nome:'RODRIGO BARBOSA DIAS' },
+    { cd:'Z00255', nome:'RODRIGO CESAR DE ARAUJO CAVALCANTI' },
+    { cd:'S00026', nome:'RODRIGO CESAR FERREIRA BARBOSA' },
+    { cd:'VS0026', nome:'RODRIGO CESAR FERREIRA BARBOSA' },
+    { cd:'S00008', nome:'RODRIGO DOS SANTOS' },
+    { cd:'VS0008', nome:'RODRIGO DOS SANTOS' },
+    { cd:'R00121', nome:'RODRIGO DOS SANTOS REPRESENTACOES E SERV' },
+    { cd:'V00703', nome:'RODRIGO FERREIRA COSTA' },
+    { cd:'V00704', nome:'RODRIGO FERREIRA COSTA VAR' },
+    { cd:'Z00256', nome:'RODRIGUES & MONTI LTDA' },
+    { cd:'V00115', nome:'ROMULO SOARES DE ALMEIDA' },
+    { cd:'Z00257', nome:'RONALDO DE CAMPOS TEIXEIRA' },
+    { cd:'V00086', nome:'RONALDO PEREIRA DA SILVA' },
+    { cd:'R00123', nome:'ROPP REPRESENTACOES LTDA' },
+    { cd:'Z00258', nome:'ROPP SERVICOS LTDA' },
+    { cd:'V00062', nome:'ROSANE ARAUJO' },
+    { cd:'V00063', nome:'ROSANGELA FATIMA GHILARDI' },
+    { cd:'R00125', nome:'ROVAN REPRESENTACAO COMERCIAL LTDA - ME' },
+    { cd:'ARQ021', nome:'ROZANE 2,5 %' },
+    { cd:'R00153', nome:'RT BRITTO & CIA LTDA  - ME' },
+    { cd:'VS0032', nome:'RUBENS GERSON BRUNO JUNIOR' },
+    { cd:'S00032', nome:'RUBENS GERSON BRUNO JUNIOR' },
+    { cd:'V00097', nome:'RUY CLEVERSON OLIVEIRA SILVA' },
+    { cd:'R00143', nome:'S BRITTO & CIA LTDA - ME' },
+    { cd:'R00105', nome:'S.A GUIMARAES REPRESENTACOES LTDA' },
+    { cd:'R00923', nome:'SA REPRESENTAÇÕES E CONSULTORIA' },
+    { cd:'Z00259', nome:'SANCHES & HENRIQUE LTDA' },
+    { cd:'ESP147', nome:'SANDI ESPECIFICACAO TECNICA' },
+    { cd:'Z00260', nome:'SANDRA FERNANDES' },
+    { cd:'R00066', nome:'SANDRA MARA SCHON MORAES ME.' },
+    { cd:'Z00261', nome:'SANDRA MARIA RODRIGUES' },
+    { cd:'ARQ018', nome:'SANDRA MARIA RODRIGUES  2,5%' },
+    { cd:'ARQ119', nome:'SANDRA MOURA' },
+    { cd:'Z00303', nome:'SANT ANA REPRESENTACOES' },
+    { cd:'Z00304', nome:'SCAR REPRESENTACOES COMERCIAIS S/A LTDA' },
+    { cd:'Z00262', nome:'SEGMENTO MULTI ENG. COM. LTDA.' },
+    { cd:'S00012', nome:'SERGE EULER MAGALHAES SOUZA' },
+    { cd:'V00119', nome:'SERGIO BARREIRO TEIXEIRA' },
+    { cd:'Z00305', nome:'SERGIO BRAZIL SPRAY' },
+    { cd:'R00103', nome:'SERGIO MOREIRA GOMES REPRES COMERCIAL' },
+    { cd:'S00010', nome:'SERGIO RICARDO EMILIANO' },
+    { cd:'Z00309', nome:'SERGIO RICARDO EMILIANO' },
+    { cd:'S00005', nome:'SERGIO VELOZO' },
+    { cd:'Z00263', nome:'SERVIC SERVICOS TECNICOS DE COSTR. LTDA' },
+    { cd:'R00096', nome:'SESB REPRESENTACOES LTDA' },
+    { cd:'R00196', nome:'SESB REPRESENTACOES LTDA - LB' },
+    { cd:'R00177', nome:'SEVEN SERVICOS ADM E REPRES MAT CONSTRUC' },
+    { cd:'R00070', nome:'SHALON REPRESENTACOES  /  EDMUNDO JUNIOR' },
+    { cd:'V00064', nome:'SHEILA DE FARIA NEVES VAZ MANSO' },
+    { cd:'V00065', nome:'SHEILLA CRISTINA APOLINARIO SANTOS COSTA' },
+    { cd:'Z00264', nome:'SHOW ROOM - FORTALEZA (EX-FUNCIONARIA)' },
+    { cd:'Z00265', nome:'SHOW ROOM - RECIFE' },
+    { cd:'Z00306', nome:'SILLUS REPRESENTACOES LTDA' },
+    { cd:'R00147', nome:'SILMARA LUZIA  DE SANDI - ME' },
+    { cd:'V00066', nome:'SILVERIO ROCHA DE LIMA' },
+    { cd:'Z00267', nome:'SILVERIO ROCHA DE LIMA' },
+    { cd:'ARQ026', nome:'SILVIO MANICOBA' },
+    { cd:'Z00268', nome:'SILVIO MUNHOZ' },
+    { cd:'ARQ031', nome:'SIMONE FERREIRA DE A. LIMA' },
+    { cd:'R00171', nome:'SIVALDO DA SILVA JANUARIO - ME' },
+    { cd:'Z00269', nome:'SOLANGE LIMA COSTA TEXTURAS  APLHAVILLE' },
+    { cd:'R00136', nome:'SONIA REGINA MARTINS REPRESENTACAO - ME' },
+    { cd:'R00041', nome:'SORELLE REP COMERCIAIS - REVENDA' },
+    { cd:'R00038', nome:'SORELLE REP COMERCIAIS DE MAT E CONSTRUÇ' },
+    { cd:'R00134', nome:'SOUZA & SOUZA SERVICOS REPRES COMERCIAL' },
+    { cd:'Z00270', nome:'SOUZA & TEIXEIRA LTDA' },
+    { cd:'R00090', nome:'SOUZA BRASIL REPRESENTAÇOES' },
+    { cd:'ARQ034', nome:'SR JORGE' },
+    { cd:'R00094', nome:'SRC ARAUJO DE SOUZA EPP' },
+    { cd:'Z00271', nome:'STOCK HOUSE COM. DE MOVEIS' },
+    { cd:'Z00272', nome:'SUELI MARIA FONSECA CARVALHO DAS MERCES' },
+    { cd:'Z00273', nome:'SUZI JURAITI REPRESENTACOES LTDA.' },
+    { cd:'R00072', nome:'SVTEXTURAS' },
+    { cd:'R00073', nome:'SYS BELOTTO REPRESENTACOES E COMERCIO LT' },
+    { cd:'R00189', nome:'T F V B ROCHA COM E SERV DE FILTROS E RE' },
+    { cd:'R00289', nome:'T F V B ROCHA COM E SERV DE FILTROS VARE' },
+    { cd:'Z00274', nome:'T.M. MARQUES - ME' },
+    { cd:'V00067', nome:'TANIA GEYZA LEITE' },
+    { cd:'V00793', nome:'TATIANA SANTOS DE BARROS DO NASCIMENTO' },
+    { cd:'Z00275', nome:'TAVARES REPRESENTACOES LTDA' },
+    { cd:'Z00276', nome:'TECFORMAS PROJETOS E REPRESENTACOES LTDA' },
+    { cd:'R00101', nome:'TECNORAP REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'Z00277', nome:'TERRA E BRANDT LTDA.' },
+    { cd:'Z00278', nome:'TEXAV RIBEIRAO PRETO ENG. E COM. LTDA.' },
+    { cd:'R00137', nome:'TG CAROL REPRESENTACOES LTDA- ME' },
+    { cd:'R00165', nome:'TH GOMES REPRESENTACOES LTA - ME' },
+    { cd:'V00132', nome:'THAMYRES BARBOSA TENORIO' },
+    { cd:'V00917', nome:'THAUAN STHANLEY JOSE VIEIRA' },
+    { cd:'V00101', nome:'THIAGO FERREIRA GOMES' },
+    { cd:'V00068', nome:'THIAGO MARTINS DA SILVA' },
+    { cd:'VS0021', nome:'THIAGO OLIVEIRA BEZERRA' },
+    { cd:'G00021', nome:'THIAGO OLIVEIRA BEZERRA' },
+    { cd:'S00021', nome:'THIAGO OLIVEIRA BEZERRA' },
+    { cd:'VS0028', nome:'THIAGO RIBEIRO SOBRAL' },
+    { cd:'S00028', nome:'THIAGO RIBERIO SOBRAL' },
+    { cd:'V00069', nome:'THIAGO ROCHA' },
+    { cd:'VS0134', nome:'THYAGO GIRUNDI CICILIOTTI' },
+    { cd:'S00134', nome:'THYAGO GIRUNDI CICILIOTTI' },
+    { cd:'V00113', nome:'THYAGO OLIVEIRA MARANHAO LIMA' },
+    { cd:'R00131', nome:'TILES PISOS E REVESTIMENTOS LTDA' },
+    { cd:'Z00310', nome:'TINTAS ALVES' },
+    { cd:'R00149', nome:'TINTAS TIMA LTDA' },
+    { cd:'R00403', nome:'TRANQUILO REPRESENTAÇÕES COMERCIAIS LTDA' },
+    { cd:'R00248', nome:'TUBARÃO REPRESENTAÇÕES COMERCIAIS LTDA' },
+    { cd:'SG0006', nome:'TULIO MATHEUS DE AZEVEDO' },
+    { cd:'VSG006', nome:'TULIO MATHEUS DE AZEVEDO' },
+    { cd:'G00006', nome:'TULIO MATHEUS DE AZEVEDO' },
+    { cd:'R00074', nome:'U.M. COSTA - ME' },
+    { cd:'R00075', nome:'UBIRATAN PIMENTA REPRESENTACOES' },
+    { cd:'V00070', nome:'ULISSES ARAUJO' },
+    { cd:'V00110', nome:'ULISSES LAURINDO DA SILVA JUNIOR' },
+    { cd:'V00071', nome:'URIEL MARQUES' },
+    { cd:'R00VRP', nome:'V.R.P REPRESENTAÇÕES' },
+    { cd:'V00713', nome:'VAGNE SILVA ALVES' },
+    { cd:'V00714', nome:'VAGNE SILVA ALVES - ENG' },
+    { cd:'V00072', nome:'VALERIA BOSCO' },
+    { cd:'V00073', nome:'VALTEIR COSTA' },
+    { cd:'Z00279', nome:'VALTEIR-PROMOTOR SP' },
+    { cd:'R00574', nome:'VALTER JOSE HAVERROTH JUNIOR' },
+    { cd:'R00142', nome:'VAMOS VENDER REPRESENTACAO LTDA' },
+    { cd:'V00085', nome:'VANDERLI PEREIRA DA SILVA' },
+    { cd:'Z00280', nome:'VANIA MARIA GARCIA CUNHA' },
+    { cd:'Z00307', nome:'VEIGAMAR REPRESENTACOES COMERCIAIS LTDA.' },
+    { cd:'R00089', nome:'VENDE MAIS REPRESENTACOES COMERCIAIS LTD' },
+    { cd:'000001', nome:'VENDEDOR PADRAO' },
+    { cd:'Z00281', nome:'VERONICA M.SILVA BALTAZAR(EX-FUNCIONARIA' },
+    { cd:'R00572', nome:'VICENTE FELICIANI REPRESENTACAO COMERCIA' },
+    { cd:'V00104', nome:'VICTOR DOS SANTOS BARBOSA' },
+    { cd:'Z00282', nome:'VICTOR GASPAR DE ALMEIDA RODRIGUES' },
+    { cd:'V00074', nome:'VICTOR JOSÉ DE LIMA BEZERRA' },
+    { cd:'S00069', nome:'VINICIUS TADEU D ANDREA COELHO' },
+    { cd:'VS0009', nome:'VINICIUS TADEU D ANDREA COELHO' },
+    { cd:'V00179', nome:'VINICIUS TORRES DE SOUZA' },
+    { cd:'V00093', nome:'VITOR VINICIUS SILVA SAUR' },
+    { cd:'Z00283', nome:'VIVIANE  ( EX-FUNCIONARIA )' },
+    { cd:'R00929', nome:'VOGAL REPRESENTACOES COMERCIAIS LTDA' },
+    { cd:'R00887', nome:'VSL REPRESENTACAO COMERCIAL LTDA' },
+    { cd:'R00078', nome:'W ARAUJO & CIA LTDA' },
+    { cd:'Z00284', nome:'W.M. REPRESENTACAO LTDA.' },
+    { cd:'R00079', nome:'W.R. REPRESENTACOES' },
+    { cd:'V00124', nome:'WAGNER LEMOS' },
+    { cd:'S00029', nome:'WAGNER LEMOS' },
+    { cd:'R00080', nome:'WAGNER MARTINS DA SILVEIRA' },
+    { cd:'Z00285', nome:'WALDIR HENRIQUE FELDER' },
+    { cd:'PIN007', nome:'WALFREDO LOURENÇO DA SILVA' },
+    { cd:'ARQ008', nome:'WALKYRIA AMORIM MENDES' },
+    { cd:'Z00286', nome:'WALMIR SOUZA SANTOS' },
+    { cd:'R00107', nome:'WALTER CARVALHO' },
+    { cd:'V00121', nome:'WALTER LUIS MULLER' },
+    { cd:'V00076', nome:'WILSON' },
+    { cd:'Z00287', nome:'WILSON -IBRATIN SP' },
+    { cd:'R00099', nome:'WIZER DE LIMA REZENDE-ME' },
+    { cd:'R00098', nome:'XABEGRÁS REPRESENTAÇÕES COMERCIAIS LTDA' },
+    { cd:'R00573', nome:'ZANCHET OLIVEIRA REPRESENTAÇÃO COMERCIAL' },
+    { cd:'R00095', nome:'ZAPTC IMPORTACAO E EXPORTACAO LTDA' },
+    { cd:'Z00308', nome:'ZARA REPRES.E ASSIST.TECNICA LTDA' }
   ],
 };
 
@@ -10375,6 +11246,91 @@ let campPage    = 0;
 const CAMP_PER_PAGE = 8;
 let dragRealIdx = null;
 
+// ════════════════════════════
+//  AUTENTICAÇÃO (Supabase Auth + profiles)
+// ════════════════════════════
+
+function mostrarAuthOverlay() {
+  document.getElementById('auth-overlay').style.display = 'flex';
+}
+
+function mostrarAuthForm(qual) {
+  document.getElementById('auth-form-login').style.display    = qual === 'login' ? 'block' : 'none';
+  document.getElementById('auth-form-cadastro').style.display  = qual === 'cadastro' ? 'block' : 'none';
+  document.getElementById('auth-titulo').textContent = qual === 'login'
+    ? 'Entre com seu e-mail e senha'
+    : 'Crie sua conta (fica pendente até um admin aprovar)';
+  authMsg('');
+}
+
+function authMsg(msg, tipo) {
+  const el = document.getElementById('auth-msg');
+  el.textContent = msg || '';
+  el.className = 'auth-msg' + (tipo ? ' ' + tipo : '');
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('auth-login-email').value.trim();
+  const senha = document.getElementById('auth-login-senha').value;
+  if (!email || !senha) { authMsg('Informe e-mail e senha.', 'err'); return; }
+  authMsg('Entrando…');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) { authMsg('Login inválido: ' + error.message, 'err'); return; }
+  await carregarPerfilEIniciar(data.user);
+}
+
+async function fazerCadastro() {
+  const email = document.getElementById('auth-cad-email').value.trim();
+  const senha = document.getElementById('auth-cad-senha').value;
+  if (!email || !senha) { authMsg('Informe e-mail e senha.', 'err'); return; }
+  if (senha.length < 6) { authMsg('A senha deve ter ao menos 6 caracteres.', 'err'); return; }
+  authMsg('Enviando…');
+  const { error } = await sb.auth.signUp({ email, password: senha });
+  if (error) { authMsg('Erro ao cadastrar: ' + error.message, 'err'); return; }
+  authMsg('Cadastro recebido! Confirme seu e-mail (se solicitado) e aguarde um administrador ativar seu acesso.', 'ok');
+  setTimeout(() => mostrarAuthForm('login'), 4000);
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// Carrega o profile (role/ativo) do usuário autenticado e, se aprovado, inicia o app.
+async function carregarPerfilEIniciar(user) {
+  const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (error || !data) {
+    authMsg('Não foi possível carregar seu perfil. Tente novamente.', 'err');
+    await sb.auth.signOut();
+    return;
+  }
+  if (!data.ativo) {
+    authMsg('Sua conta ainda não foi aprovada por um administrador.', 'err');
+    await sb.auth.signOut();
+    return;
+  }
+  PERFIL = data;
+  document.getElementById('auth-overlay').style.display = 'none';
+  aplicarGatingUI();
+  await init();
+}
+
+function aplicarGatingUI() {
+  document.body.classList.remove('role-admin', 'role-restrito');
+  document.body.classList.add('role-' + PERFIL.role);
+  const badge = document.getElementById('badge-role');
+  badge.style.display = 'inline-flex';
+  badge.textContent = PERFIL.role === 'admin' ? '★ Admin' : 'Restrito';
+  badge.classList.toggle('admin', PERFIL.role === 'admin');
+}
+
+// Ao carregar a página: se já existe sessão válida do Supabase Auth, pula o login.
+async function checarSessaoEIniciar() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { mostrarAuthOverlay(); return; }
+  await carregarPerfilEIniciar(session.user);
+}
+
 // Operadores (espelha Power BI Desktop)
 const OPS = [
   { v:'contem',          l:'Contém' },
@@ -10395,15 +11351,16 @@ const OPS_SEM_VALOR = new Set(['em_branco','nao_em_branco']);
 // ════════════════════════════
 let RELACOES = null;
 const DIMS_CF = ['canal','segmento','empresa','vendedor','grupo'];
+// Bucket público do Supabase Storage — publicado por scripts/gerar_relacoes.py
+const RELACOES_URL = `${SUPABASE_URL}/storage/v1/object/public/relacoes/dim_relacoes.json`;
 
 async function carregarRelacoes(forcar = false) {
   if (RELACOES && !forcar) return;
-  if (!N8N_WEBHOOK_READ_URL) return;
   const ctrl  = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 60000);
   try {
     console.log('[RELACOES] Carregando dim_relacoes.json…');
-    const resp = await fetch(N8N_WEBHOOK_READ_URL + '?arquivo=dim_relacoes.json', { signal: ctrl.signal });
+    const resp = await fetch(RELACOES_URL + `?t=${Date.now()}`, { signal: ctrl.signal });
     clearTimeout(timer);
     if (!resp.ok) {
       console.warn(`[RELACOES] HTTP ${resp.status} — cross-filter desativado`);
@@ -10551,21 +11508,6 @@ function _setDimDisponivel(dim, validNomes) {
   if (mudou) updateBadge(dim);
 }
 
-function mostrarInstrucoesRelacoes() {
-  const msg = [
-    'Atualizar Relações de Dimensões',
-    '',
-    'Pré-requisito: Power BI Desktop aberto com Comercial.pbip',
-    '',
-    '1. Aguarde o carregamento completo dos dados no PBI',
-    '2. Execute no terminal:  python gerar_relacoes.py',
-    '3. Aguarde a mensagem CONCLUÍDO no terminal',
-    '',
-    'Clique OK para recarregar do OneDrive após executar o script.'
-  ].join('\n');
-  if (confirm(msg)) carregarRelacoes(true);
-}
-
 // ════════════════════════════
 //  INIT
 // ════════════════════════════
@@ -10574,7 +11516,7 @@ async function init() {
   buildAdvancedPanels();
   buildYearRow();
   buildMonthGrid();
-  await carregarDoOneDrive();  // tenta OneDrive → fallback localStorage
+  await carregarDoSupabase();  // tenta Supabase → fallback localStorage
   await carregarRelacoes();    // cross-filter: combinações válidas entre dimensões
   renderCampanhas();
   atualizarPreview();
@@ -10875,7 +11817,7 @@ function limparAvancado(dim) {
   FLT[dim].adv = { c1Op:'contem', c1Val:'', logic:'E', c2Op:'contem', c2Val:'' };
   FLT[dim].mode = 'basico';
   FLT[dim].sel.clear();
-  buildAdvPanel(dim);
+  fecharAvancado(dim);
   // Resetar checkboxes
   document.querySelectorAll(`[data-dim="${dim}"]`).forEach(cb => cb.checked = false);
   const todosElAdv = document.getElementById(`todos-${dim}`);
@@ -10896,6 +11838,20 @@ function switchTab(dim, tab, btnEl) {
   document.getElementById(`panel-basico-${dim}`).style.display  = tab === 'basico'   ? '' : 'none';
   document.getElementById(`panel-avancado-${dim}`).style.display = tab === 'avancado' ? '' : 'none';
   if (tab === 'avancado') buildAdvPanel(dim);
+}
+
+// Fecha visualmente a aba "Avançado" de uma dimensão, voltando para "Básico"
+// e reconstruindo o painel avançado em branco. Usado por limpar()/limparAvancado()
+// para que um reset de filtro não deixe a aba avançada aberta com texto antigo.
+function fecharAvancado(dim) {
+  const tabs = document.querySelectorAll(`#fb-${dim} .filter-tab`);
+  if (tabs[0]) tabs[0].classList.add('active');
+  if (tabs[1]) tabs[1].classList.remove('active');
+  const pB = document.getElementById(`panel-basico-${dim}`);
+  const pA = document.getElementById(`panel-avancado-${dim}`);
+  if (pB) pB.style.display = '';
+  if (pA) pA.style.display = 'none';
+  buildAdvPanel(dim);
 }
 
 // ════════════════════════════
@@ -11102,7 +12058,7 @@ function proximoCod() {
   return cod;
 }
 
-function salvar() {
+async function salvar() {
   const nome     = document.getElementById('inp-nome').value.trim();
   const desc     = document.getElementById('inp-desc').value.trim();
   const objetivo = document.getElementById('inp-objetivo').value.trim();
@@ -11150,6 +12106,7 @@ function salvar() {
   localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
   renderCampanhas();
   limpar();
+  await upsertCampanhaSupabase(campanha);
 }
 
 function editarCampanha(idx) {
@@ -11213,12 +12170,14 @@ function exportarCampanhaCompacta(idx) {
   toast(`Regra exportada — ${linhas.length} linha(s)`, 'ok');
 }
 
-function excluirCampanha(idx) {
+async function excluirCampanha(idx) {
+  if (PERFIL && PERFIL.role !== 'admin') { toast('Apenas administradores podem excluir campanhas.', 'err'); return; }
   if (!confirm(`Excluir "${campanhas[idx].nome}"?`)) return;
-  campanhas.splice(idx, 1);
+  const [removida] = campanhas.splice(idx, 1);
   localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
   renderCampanhas();
   toast('Excluída','');
+  await excluirCampanhaSupabase(removida.cod);
 }
 
 function limpar() {
@@ -11235,6 +12194,7 @@ function limpar() {
     // Limpar input de busca do filtro básico
     const searchInp = document.querySelector(`#panel-basico-${dim} .search-input`);
     if (searchInp) { searchInp.value = ''; filtrarBasico(dim, ''); }
+    fecharAvancado(dim);
     updateBadge(dim);
   });
   MESES_SEL.clear();
@@ -11246,13 +12206,16 @@ function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function excluirTodas() {
+async function excluirTodas() {
+  if (PERFIL && PERFIL.role !== 'admin') { toast('Apenas administradores podem excluir campanhas.', 'err'); return; }
   if (!campanhas.length) { toast('Nenhuma campanha cadastrada','err'); return; }
   if (!confirm(`Excluir TODAS as ${campanhas.length} campanha(s)? Esta ação não pode ser desfeita.`)) return;
+  const cods = campanhas.map(c => c.cod);
   campanhas = [];
   localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
   renderCampanhas();
   toast('Todas as campanhas excluídas','');
+  await Promise.all(cods.map(cod => excluirCampanhaSupabase(cod)));
 }
 
 function renderCampanhas() {
@@ -11335,10 +12298,11 @@ function renderCampanhas() {
           </div>` : ''}
         </div>
         <div class="campanha-btns">
+          <button class="btn btn-ghost btn-sm" onclick="abrirMetas('${c.cod}')" title="Metas por vendedor">🎯 Metas</button>
           <button class="btn btn-ghost btn-sm" onclick="exportarCampanhaCompacta(${i})" title="Exportar PBI">📊</button>
           <button class="btn btn-ghost btn-sm" onclick="duplicarCampanha(${i})" title="Duplicar">⧉</button>
           <button class="btn btn-ghost btn-sm" onclick="editarCampanha(${i})" title="Editar">✏️</button>
-          <button class="btn btn-ghost btn-sm" onclick="excluirCampanha(${i})" style="color:var(--danger)" title="Excluir">🗑</button>
+          <button class="btn btn-ghost btn-sm only-admin" onclick="excluirCampanha(${i})" style="color:var(--danger)" title="Excluir">🗑</button>
         </div>
       </div>
       <div class="meses-str">📅 ${escHtml(mesesStr)}</div>
@@ -11400,7 +12364,7 @@ function campDragOver(e, realIdx) {
   }
 }
 
-function campDrop(e, targetRealIdx) {
+async function campDrop(e, targetRealIdx) {
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   if (dragRealIdx === null || dragRealIdx === targetRealIdx) return;
@@ -11412,9 +12376,10 @@ function campDrop(e, targetRealIdx) {
   dragRealIdx = null;
   localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
   renderCampanhas();
+  await sincronizarOrdemSupabase();
 }
 
-function duplicarCampanha(idx) {
+async function duplicarCampanha(idx) {
   const orig = campanhas[idx];
   // Nome base: remove sufixo "- COPIA N" se já for uma cópia
   const baseNome = orig.nome.replace(/\s*-\s*COPIA\s+\d+$/i, '');
@@ -11445,6 +12410,286 @@ function duplicarCampanha(idx) {
   localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
   renderCampanhas();
   toast(`Campanha duplicada como "${nomeNovo}"`, 'ok');
+  await upsertCampanhaSupabase(copia);
+}
+
+// ════════════════════════════
+//  GRADE DE METAS (vendedor x mês)
+// ════════════════════════════
+const METAS_MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+let METAS_CAMP_COD  = null;
+let METAS_ANOS      = [];
+let METAS_ANO_ATUAL = null;
+let METAS_DADOS     = {};   // { [ano]: { [vendedorCod]: { [mes]: valor } } }
+
+async function abrirMetas(cod) {
+  const camp = campanhas.find(c => c.cod === cod);
+  if (!camp) { toast('Campanha não encontrada', 'err'); return; }
+
+  METAS_CAMP_COD  = cod;
+  METAS_ANOS      = [...new Set(camp.meses.map(m => +m.split('-')[0]))].sort();
+  METAS_ANO_ATUAL = METAS_ANOS[0];
+  METAS_DADOS     = {};
+
+  document.getElementById('metas-camp-nome').textContent = camp.nome;
+  document.getElementById('metas-camp-cod').textContent  = camp.cod ? `[${camp.cod}]` : '';
+  document.getElementById('modal-metas').style.display   = 'flex';
+  document.getElementById('metas-table').innerHTML = '<tbody><tr><td style="padding:20px">Carregando…</td></tr></tbody>';
+
+  const { data, error } = await sb.from('metas').select('*').eq('campanha_cod', cod);
+  if (error) toast('Erro ao carregar metas: ' + error.message, 'err');
+  (data || []).forEach(r => {
+    METAS_DADOS[r.ano] = METAS_DADOS[r.ano] || {};
+    METAS_DADOS[r.ano][r.vendedor_cod] = METAS_DADOS[r.ano][r.vendedor_cod] || {};
+    METAS_DADOS[r.ano][r.vendedor_cod][r.mes] = Number(r.valor) || 0;
+  });
+
+  renderAnoTabsMetas();
+  renderTabelaMetas();
+}
+
+function fecharMetas() {
+  document.getElementById('modal-metas').style.display = 'none';
+}
+
+function renderAnoTabsMetas() {
+  document.getElementById('metas-anos').innerHTML = METAS_ANOS.map(a =>
+    `<button class="btn btn-ghost btn-sm ${a === METAS_ANO_ATUAL ? 'active' : ''}" onclick="selecionarAnoMetas(${a})">${a}</button>`
+  ).join('');
+}
+
+function selecionarAnoMetas(ano) {
+  METAS_ANO_ATUAL = ano;
+  renderAnoTabsMetas();
+  renderTabelaMetas();
+}
+
+// Resolve o efeito do filtro de vendedor da regra da campanha (mesma lógica de resolverDim()):
+// sem filtro (ou campanha antiga sem esse campo) = todos; básico = só o `sel`; avançado = aplicarFiltroAvancado.
+function vendedoresDaCampanha(camp) {
+  const f = camp.flt && camp.flt.vendedor;
+  if (!f) return DIM.vendedor;
+  if (f.mode === 'avancado') return aplicarFiltroAvancado(DIM.vendedor, f.adv);
+  const sel = f.sel instanceof Set ? [...f.sel] : (f.sel || []);
+  if (!sel.length) return DIM.vendedor;
+  return DIM.vendedor.filter(v => sel.includes(String(v.cd)));
+}
+
+function renderTabelaMetas() {
+  const camp = campanhas.find(c => c.cod === METAS_CAMP_COD);
+  if (!camp) return;
+  const ano = METAS_ANO_ATUAL;
+  const mesesAtivos = new Set(camp.meses.filter(m => m.startsWith(String(ano))).map(m => +m.split('-')[1]));
+  const readonly = !(PERFIL && PERFIL.role === 'admin');
+  const dados = METAS_DADOS[ano] || {};
+  const vendedores = vendedoresDaCampanha(camp);
+
+  const buscaEl = document.getElementById('metas-busca-vendedor');
+  if (buscaEl) buscaEl.value = '';
+
+  const thead = '<thead><tr><th class="vendedor-th">Vendedor</th><th class="codigo-th">Cód.</th>' +
+    METAS_MESES_NOME.map(m => `<th>${m}</th>`).join('') + '<th>Total</th></tr></thead>';
+
+  const totCols = new Array(12).fill(0);
+  let tbody = '<tbody>';
+  vendedores.forEach(v => {
+    let totalLinha = 0;
+    const buscaTexto = escHtml((String(v.cd) + ' ' + v.nome).toLowerCase());
+    tbody += `<tr data-busca-texto="${buscaTexto}"><td class="vendedor-cell">${escHtml(v.nome)}</td>` +
+      `<td class="codigo-cell">${escHtml(String(v.cd))}</td>`;
+    for (let m = 1; m <= 12; m++) {
+      const ativo = mesesAtivos.has(m);
+      const valor = (dados[v.cd] && dados[v.cd][m]) || 0;
+      if (ativo) { totCols[m-1] += valor; totalLinha += valor; }
+      tbody += `<td><input type="number" step="0.01" class="meta-cell"
+        data-ano="${ano}" data-vendedor="${v.cd}" data-mes="${m}"
+        value="${valor || ''}" ${(!ativo || readonly) ? 'disabled' : ''}
+        oninput="onMetaInput(this)" onkeydown="onMetaKeydown(event)" onpaste="onMetaPaste(event)"></td>`;
+    }
+    tbody += `<td style="text-align:right;padding:6px 8px;font-weight:600">${totalLinha ? totalLinha.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr>`;
+  });
+  tbody += '</tbody>';
+
+  const grand = totCols.reduce((a,b) => a+b, 0);
+  const tfoot = '<tfoot><tr class="total-row"><td class="vendedor-cell">Total</td><td class="codigo-cell"></td>' +
+    totCols.map(t => `<td style="text-align:right;padding:6px 8px">${t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td>`).join('') +
+    `<td style="text-align:right;padding:6px 8px">${grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr></tfoot>`;
+
+  document.getElementById('metas-table').innerHTML = thead + tbody + tfoot;
+}
+
+// Busca por código ou nome na grade de metas — só esconde/mostra linhas já renderizadas.
+function filtrarMetasVendedor(q) {
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('#metas-table tbody tr').forEach(tr => {
+    const texto = tr.dataset.buscaTexto || '';
+    tr.style.display = !query || texto.includes(query) ? '' : 'none';
+  });
+}
+
+function onMetaInput(el) {
+  const ano  = +el.dataset.ano;
+  const vend = el.dataset.vendedor;
+  const mes  = +el.dataset.mes;
+  const v = parseFloat((el.value || '0').replace(',', '.')) || 0;
+  METAS_DADOS[ano] = METAS_DADOS[ano] || {};
+  METAS_DADOS[ano][vend] = METAS_DADOS[ano][vend] || {};
+  METAS_DADOS[ano][vend][mes] = v;
+  atualizarTotaisMetas();
+}
+
+// Recalcula só os totais (evita re-renderizar a tabela inteira e perder o foco do input)
+function atualizarTotaisMetas() {
+  const table = document.getElementById('metas-table');
+  const rows = [...table.querySelectorAll('tbody tr')];
+  const totCols = new Array(12).fill(0);
+  rows.forEach(row => {
+    const inputs = [...row.querySelectorAll('input.meta-cell')];
+    let totalLinha = 0;
+    inputs.forEach((inp, i) => {
+      const val = parseFloat((inp.value || '0').replace(',', '.')) || 0;
+      totCols[i] += val;
+      totalLinha += val;
+    });
+    const totalCell = row.querySelector('td:last-child');
+    if (totalCell) totalCell.textContent = totalLinha ? totalLinha.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
+  });
+  const footRow = table.querySelector('tfoot tr');
+  if (footRow) {
+    const footCells = [...footRow.querySelectorAll('td')].slice(2);
+    totCols.forEach((t, i) => { if (footCells[i]) footCells[i].textContent = t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''; });
+    const grand = totCols.reduce((a,b) => a+b, 0);
+    if (footCells[12]) footCells[12].textContent = grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
+  }
+}
+
+// Navegação estilo planilha: Enter/setas move o foco verticalmente na mesma coluna
+function onMetaKeydown(e) {
+  if (!['Enter','ArrowDown','ArrowUp'].includes(e.key)) return;
+  e.preventDefault();
+  const el = e.target;
+  const table = document.getElementById('metas-table');
+  const row = el.closest('tr');
+  const allRows = [...table.querySelectorAll('tbody tr')];
+  const rowIdx = allRows.indexOf(row);
+  const colIdx = [...row.querySelectorAll('input.meta-cell')].indexOf(el);
+  const delta = e.key === 'ArrowUp' ? -1 : 1;
+  const nextRow = allRows[rowIdx + delta];
+  if (!nextRow) return;
+  const nextInput = nextRow.querySelectorAll('input.meta-cell')[colIdx];
+  if (nextInput && !nextInput.disabled) nextInput.focus();
+}
+
+// Cola um bloco de células copiado do Excel (delimitado por tab/quebra de linha)
+function onMetaPaste(e) {
+  const el = e.target;
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (!text || (!text.includes('\t') && !text.includes('\n'))) return; // valor único: comportamento padrão
+  e.preventDefault();
+  const linhas = text.replace(/\r/g, '').split('\n').filter(l => l.length);
+  const table = document.getElementById('metas-table');
+  const startRow = el.closest('tr');
+  const allRows = [...table.querySelectorAll('tbody tr')];
+  const startRowIdx = allRows.indexOf(startRow);
+  const startCellIdx = [...startRow.querySelectorAll('input.meta-cell')].indexOf(el);
+  linhas.forEach((linha, ri) => {
+    const row = allRows[startRowIdx + ri];
+    if (!row) return;
+    const inputs = [...row.querySelectorAll('input.meta-cell')];
+    linha.split('\t').forEach((val, ci) => {
+      const input = inputs[startCellIdx + ci];
+      if (!input || input.disabled) return;
+      const num = parseFloat(val.replace(',', '.')) || 0;
+      input.value = num || '';
+      onMetaInput(input);
+    });
+  });
+  toast('Valores colados', 'ok');
+}
+
+async function salvarMetas() {
+  if (!(PERFIL && PERFIL.role === 'admin')) { toast('Apenas administradores podem salvar metas.', 'err'); return; }
+  const camp = campanhas.find(c => c.cod === METAS_CAMP_COD);
+  if (!camp) return;
+
+  const rows = [];
+  for (const anoStr of Object.keys(METAS_DADOS)) {
+    const ano = +anoStr;
+    const mesesAtivos = new Set(camp.meses.filter(m => m.startsWith(anoStr)).map(m => +m.split('-')[1]));
+    for (const v of vendedoresDaCampanha(camp)) {
+      const porMes = METAS_DADOS[ano][v.cd];
+      if (!porMes) continue;
+      for (const mesStr of Object.keys(porMes)) {
+        const mes = +mesStr;
+        if (!mesesAtivos.has(mes)) continue; // não persiste meta fora dos meses da regra
+        rows.push({
+          campanha_cod: camp.cod, vendedor_cod: v.cd, vendedor_nome: v.nome,
+          ano, mes, valor: porMes[mes] || 0,
+          atualizado_em: new Date().toISOString(), atualizado_por: PERFIL.id,
+        });
+      }
+    }
+  }
+  if (!rows.length) { toast('Nenhum valor para salvar.', 'err'); return; }
+
+  const btn = document.getElementById('btn-salvar-metas');
+  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  try {
+    const CHUNK = 500;
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      const { error } = await sb.from('metas')
+        .upsert(rows.slice(i, i + CHUNK), { onConflict: 'campanha_cod,vendedor_cod,ano,mes' });
+      if (error) throw error;
+    }
+    toast(`✓ Metas salvas (${rows.length} registro(s))`, 'ok');
+  } catch (e) {
+    toast('Erro ao salvar metas: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar Metas';
+  }
+}
+
+// ════════════════════════════
+//  USUÁRIOS (admin)
+// ════════════════════════════
+async function abrirUsuarios() {
+  if (!(PERFIL && PERFIL.role === 'admin')) { toast('Acesso restrito a administradores.', 'err'); return; }
+  document.getElementById('modal-usuarios').style.display = 'flex';
+  document.getElementById('users-tbody').innerHTML = '<tr><td colspan="4" style="padding:14px">Carregando…</td></tr>';
+  const { data, error } = await sb.from('profiles').select('*').order('criado_em', { ascending: true });
+  if (error) { toast('Erro ao carregar usuários: ' + error.message, 'err'); return; }
+  renderUsuarios(data || []);
+}
+
+function fecharUsuarios() {
+  document.getElementById('modal-usuarios').style.display = 'none';
+}
+
+function renderUsuarios(lista) {
+  const tbody = document.getElementById('users-tbody');
+  if (!lista.length) { tbody.innerHTML = '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>'; return; }
+  tbody.innerHTML = lista.map(u => `
+    <tr>
+      <td>${escHtml(u.email)}${u.id === PERFIL.id ? ' <span style="color:var(--muted);font-size:11px">(você)</span>' : ''}</td>
+      <td>
+        <select ${u.id === PERFIL.id ? 'disabled title="Você não pode alterar seu próprio papel"' : ''} onchange="atualizarUsuario('${u.id}','role',this.value)">
+          <option value="restrito" ${u.role === 'restrito' ? 'selected' : ''}>Restrito</option>
+          <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+        </select>
+      </td>
+      <td>
+        <input type="checkbox" ${u.ativo ? 'checked' : ''} ${u.id === PERFIL.id ? 'disabled title="Você não pode desativar sua própria conta"' : ''}
+          onchange="atualizarUsuario('${u.id}','ativo',this.checked)">
+      </td>
+      <td style="font-size:12px;color:var(--muted)">${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
+    </tr>
+  `).join('');
+}
+
+async function atualizarUsuario(id, campo, valor) {
+  const { error } = await sb.from('profiles').update({ [campo]: valor }).eq('id', id);
+  if (error) { toast('Erro ao atualizar usuário: ' + error.message, 'err'); return; }
+  toast('Usuário atualizado', 'ok');
 }
 
 // ════════════════════════════
@@ -11555,32 +12800,7 @@ function _gerarLinhasCompactas(nome, desc, objetivo, cod, dtCadastro, dtUltimaMo
   return { linhas, avisos };
 }
 
-function exportarRegraCompacta() {
-  const nome     = document.getElementById('inp-nome').value.trim();
-  const desc     = document.getElementById('inp-desc').value.trim();
-  const objetivo = document.getElementById('inp-objetivo').value.trim();
-  if (!nome)           { toast('Informe o nome da campanha antes de exportar','err'); return; }
-  if (!MESES_SEL.size) { toast('Selecione pelo menos um mês','err'); return; }
-  const fltAtual = {
-    canal: FLT.canal, segmento: FLT.segmento, empresa: FLT.empresa,
-    vendedor: FLT.vendedor, produto: FLT.produto, grupo: FLT.grupo
-  };
-  const { linhas, avisos } = _gerarLinhasCompactas(
-    nome, desc, objetivo,
-    '', '', '',
-    fltAtual, MESES_SEL
-  );
-  if (avisos.length) {
-    if (!confirm('Atenção:\n\n' + avisos.join('\n') + '\n\nContinuar mesmo assim?')) return;
-  }
-  const csv = ['COD_CAMPANHA,CAMPANHA,DESCRICAO,OBJETIVO,DT_CADASTRO,DT_ULTIMA_MODIF,DT_REF,CANAL,SEGMENTO,EMPRESA,VENDEDOR,PRODUTO,GRUPO',
-               ...linhas].join('\r\n');
-  const safeName = nome.replace(/[<>:"/\\|?*]/g, '_');
-  downloadCSV(csv, `REGRA_PBI_${safeName}_${new Date().toISOString().slice(0,10)}.csv`);
-  toast(`Regra exportada — ${linhas.length} linha(s)`, 'ok');
-}
-
-// ─── Geração de CSV (compartilhado entre download e upload OneDrive) ─────────
+// ─── Geração de CSV (compartilhado entre download e publicação no Supabase) ──
 function _gerarCsvContent() {
   const header = 'COD_CAMPANHA,CAMPANHA,DESCRICAO,OBJETIVO,DT_CADASTRO,DT_ULTIMA_MODIF,DT_REF,CANAL,SEGMENTO,EMPRESA,VENDEDOR,PRODUTO,GRUPO';
   const todasLinhas = [];
@@ -11601,48 +12821,8 @@ function _gerarCsvContent() {
   };
 }
 
-async function exportarTudoCompacto() {
-  try {
-    if (!campanhas.length) { toast('Nenhuma campanha cadastrada', 'err'); return; }
-    const { csv, linhas, avisos } = _gerarCsvContent();
-    if (avisos.length) {
-      if (!confirm('Atenção em algumas campanhas:\n\n' + avisos.join('\n') + '\n\nContinuar mesmo assim?')) return;
-    }
-    const conteudo = '﻿' + csv;
+// ─── Persistência via Supabase (substitui OneDrive/n8n) ───────────────────────
 
-    if (window.showSaveFilePicker) {
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: 'TB_REGRAS_CAMPANHAS.csv',
-          types: [{ description: 'CSV', accept: { 'text/csv': ['.csv'] } }]
-        });
-        const writable = await handle.createWritable();
-        await writable.write(conteudo);
-        await writable.close();
-        toast(`✓ ${linhas} linha(s) salvas em "${handle.name}"`, 'ok');
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') return;
-      }
-    }
-
-    downloadCSV(csv, 'TB_REGRAS_CAMPANHAS.csv');
-    toast(`${linhas} linha(s) exportadas — salve como TB_REGRAS_CAMPANHAS.csv`, 'ok');
-  } catch (e) {
-    toast(`Erro ao exportar: ${e.message}`, 'err');
-    console.error('[exportarTudoCompacto]', e);
-  }
-}
-
-// ─── OneDrive via N8N webhook ─────────────────────────────────────────────────
-// Único valor a configurar: URL do webhook N8N (production, não test)
-// Nenhum usuário precisa de credenciais — o N8N usa a conta do administrador
-const N8N_WEBHOOK_URL      = 'https://n8n.xperiun.com/webhook/ibratin-campanhas';
-const N8N_WEBHOOK_READ_URL = 'https://n8n.xperiun.com/webhook/ibratin-campanhas-load';
-// N8N_WEBHOOK_URL      → POST {conteudo, arquivo} — grava arquivo no OneDrive
-// N8N_WEBHOOK_READ_URL → GET                      — devolve ib_campanhas.json do OneDrive
-
-// ─── Sincronização OneDrive → localStorage ────────────────────────────────────
 function _banner(msg, isErro = false) {
   const el = document.getElementById('od-sync-banner');
   if (!el) return;
@@ -11652,30 +12832,52 @@ function _banner(msg, isErro = false) {
   el.style.display = 'block';
 }
 
-async function carregarDoOneDrive() {
-  if (!N8N_WEBHOOK_READ_URL) return;
-  _banner('⏳ Carregando campanhas do OneDrive…');
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 6000);
+// campanha (objeto em memória) → linha da tabela public.campanhas
+function campToRow(c, idx) {
+  return {
+    cod:         c.cod,
+    nome:        c.nome,
+    descricao:   c.desc || '',
+    objetivo:    c.objetivo || '',
+    flt:         c.flt,
+    meses:       [...c.meses],
+    ordem:       idx ?? 0,
+    criado_em:   c.criadoEm || new Date().toISOString(),
+    alterado_em: c.alteradoEm || null,
+    criado_por:  PERFIL ? PERFIL.id : null,
+  };
+}
+
+// linha da tabela public.campanhas → campanha (objeto em memória)
+function rowToCamp(r) {
+  return {
+    cod:        r.cod,
+    nome:       r.nome,
+    desc:       r.descricao || '',
+    objetivo:   r.objetivo || '',
+    flt:        r.flt,
+    meses:      [...r.meses],
+    criadoEm:   r.criado_em,
+    alteradoEm: r.alterado_em,
+  };
+}
+
+async function carregarDoSupabase() {
+  _banner('⏳ Carregando campanhas…');
   try {
-    const resp = await fetch(N8N_WEBHOOK_READ_URL + '?arquivo=ib_campanhas.json', { signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('Resposta inesperada do servidor');
-    campanhas = data;
+    const { data, error } = await sb.from('campanhas').select('*').order('ordem', { ascending: true });
+    if (error) throw error;
+    campanhas = (data || []).map(rowToCamp);
     localStorage.setItem('ib_campanhas', JSON.stringify(campanhas));
     _banner('');
   } catch (e) {
-    clearTimeout(timer);
-    const motivo = e.name === 'AbortError' ? 'tempo esgotado' : e.message;
-    _banner(`⚠ OneDrive indisponível (${motivo}) — usando dados locais`, true);
+    _banner(`⚠ Supabase indisponível (${e.message}) — usando dados locais`, true);
     setTimeout(() => _banner(''), 5000);
-    // campanhas já carregadas do localStorage na linha 10346 — sem perda de dados
+    // campanhas já carregadas do localStorage na declaração de estado — sem perda de dados
   }
 }
 
-function _setBtnsOneDrive(label, disabled) {
+function _setBtnsPublicar(label, disabled) {
   ['btn-od-header', 'btn-od-lista'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -11684,120 +12886,99 @@ function _setBtnsOneDrive(label, disabled) {
   });
 }
 
-
-const _ENC = new TextEncoder();
-const _CHUNK_CHARS = 5 * 1024 * 1024; // 5 M chars ≈ 5 MB (CSV é predominantemente ASCII)
-
-function _uploadSessionKey(arquivo) {
-  return 'ib_upload_session_' + arquivo.replace(/[^a-z0-9]/gi, '_');
+// Upsert de 1 campanha na tabela (chamado por salvar/duplicar/reordenar).
+async function upsertCampanhaSupabase(camp) {
+  const idx = campanhas.indexOf(camp);
+  const { error } = await sb.from('campanhas').upsert(campToRow(camp, idx));
+  if (error) toast(`Falha ao sincronizar campanha no Supabase: ${error.message}`, 'err');
+  return !error;
 }
 
-async function _initUploadSession(arquivo) {
-  const lsKey      = _uploadSessionKey(arquivo);
-  const cachedUrl  = localStorage.getItem(lsKey);
-
-  // Cancela sessão anterior diretamente no Microsoft Graph (sem relay N8N)
-  if (cachedUrl && cachedUrl.startsWith('https://')) {
-    try { await fetch(cachedUrl, { method: 'DELETE' }); } catch (e) {}
-    localStorage.removeItem(lsKey);
-    await new Promise(r => setTimeout(r, 1000)); // aguarda Graph processar
-  }
-
-  const resp = await fetch(N8N_WEBHOOK_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ acao: 'init', arquivo }),
-  });
-  if (!resp.ok) {
-    const txt = await resp.text().catch(() => '');
-    throw new Error(`Sessão de upload falhou HTTP ${resp.status}${txt ? ': ' + txt.slice(0, 120) : ''}`);
-  }
-  const data = await resp.json();
-  if (!data.uploadUrl) throw new Error('N8N não retornou uploadUrl');
-
-  localStorage.setItem(lsKey, data.uploadUrl);
-  return data.uploadUrl;
+async function excluirCampanhaSupabase(cod) {
+  const { error } = await sb.from('campanhas').delete().eq('cod', cod);
+  if (error) toast(`Falha ao excluir campanha no Supabase: ${error.message}`, 'err');
+  return !error;
 }
 
-async function _uploadChunk(uploadUrl, start, end, totalSize, conteudo) {
-  // PUT direto ao Microsoft Graph (upload session URL já autorizado, não revela caminho OneDrive)
-  const chunkBytes = _ENC.encode(conteudo);
-  const resp = await fetch(uploadUrl, {
-    method:  'PUT',
-    headers: {
-      'Content-Length': String(chunkBytes.length),
-      'Content-Range':  `bytes ${start}-${end}/${totalSize}`,
-    },
-    body: chunkBytes,
-  });
-  // 200/201 = completo, 202 = aceito (aguardando mais chunks)
-  if (resp.status !== 200 && resp.status !== 201 && resp.status !== 202) {
-    const txt = await resp.text().catch(() => '');
-    throw new Error(`Bloco ${start}–${end} HTTP ${resp.status}${txt ? ': ' + txt.slice(0, 120) : ''}`);
+// Persiste a ordem atual de todas as campanhas (após arrastar para reordenar).
+async function sincronizarOrdemSupabase() {
+  const updates = campanhas.map((c, i) => ({ cod: c.cod, ordem: i }));
+  for (const u of updates) {
+    await sb.from('campanhas').update({ ordem: u.ordem }).eq('cod', u.cod);
   }
 }
 
-async function publicarOneDrive() {
-  if (!N8N_WEBHOOK_URL) {
-    toast('URL do webhook N8N não configurada. Contate o administrador do sistema.', 'err');
-    return;
-  }
+// Reconstrói regras_expandidas com o grão do CSV atual, direto no Supabase
+// (reaproveita 100% de _gerarLinhasCompactas — evita reimplementar os filtros em SQL).
+async function publicarSupabase() {
   if (!campanhas.length) { toast('Nenhuma campanha cadastrada.', 'err'); return; }
 
-  _setBtnsOneDrive('⏳ Enviando…', true);
+  _setBtnsPublicar('⏳ Publicando…', true);
   try {
-    const { csv, linhas, avisos } = _gerarCsvContent();
+    const DIMS = ['canal','segmento','empresa','vendedor','produto','grupo'];
+    const linhasObjeto = [];
+    const avisos = [];
+
+    campanhas.forEach(camp => {
+      const dimValores = {};
+      for (const dim of DIMS) {
+        const r = _getDimValoresCompacto(dim, camp.flt[dim] || { mode:'basico', sel:[], adv:{} });
+        dimValores[dim] = r.valores;
+        if (r.aviso) avisos.push(`[${camp.nome}] ${r.aviso}`);
+      }
+      const mesList = [...camp.meses].sort();
+      for (const mes of mesList) {
+        const [y, m] = mes.split('-');
+        let combos = [[]];
+        for (const dim of DIMS) combos = combos.flatMap(c => dimValores[dim].map(v => [...c, v]));
+        for (const [canal, segmento, empresa, vendedor, produto, grupo] of combos) {
+          linhasObjeto.push({
+            cod_campanha:    camp.cod,
+            campanha:        camp.nome,
+            descricao:       camp.desc || '',
+            objetivo:        camp.objetivo || '',
+            dt_cadastro:     fmtDtExport(camp.criadoEm),
+            dt_ultima_modif: fmtDtExport(camp.alteradoEm),
+            dt_ref:          `${y}-${m}-01`,
+            canal, segmento, empresa, vendedor, produto, grupo,
+          });
+        }
+      }
+    });
+
     if (avisos.length) {
       if (!confirm('Atenção em algumas campanhas:\n\n' + avisos.join('\n') + '\n\nPublicar mesmo assim?')) {
-        _setBtnsOneDrive('☁️ Publicar OneDrive', false);
+        _setBtnsPublicar('☁️ Publicar', false);
         return;
       }
     }
 
-    // 1. Publica CSV expandido (para Power BI) em blocos de 5 MB
-    const csvRaw    = '﻿' + csv;
-    const totalBytes = _ENC.encode(csvRaw).length;
-    const totalBlocos = Math.ceil(csvRaw.length / _CHUNK_CHARS);
-    console.log(`[publicarOneDrive] CSV: ${(csvRaw.length / 1024).toFixed(1)} KB | ${totalBlocos} bloco(s)`);
+    // 1. Sincroniza a tabela de regras (campanhas + ordem)
+    _setBtnsPublicar('⏳ Sincronizando regras…', true);
+    const rows = campanhas.map((c, i) => campToRow(c, i));
+    const { error: errCamp } = await sb.from('campanhas').upsert(rows);
+    if (errCamp) throw errCamp;
 
-    _setBtnsOneDrive('⏳ Iniciando sessão…', true);
-    const csvUploadUrl = await _initUploadSession('TB_REGRAS_CAMPANHAS.csv');
-
-    let charStart = 0;
-    let byteStart = 0;
-    let blocoIdx  = 0;
-    while (charStart < csvRaw.length) {
-      const chunk    = csvRaw.slice(charStart, charStart + _CHUNK_CHARS);
-      const chunkLen = _ENC.encode(chunk).length;
-      const byteEnd  = byteStart + chunkLen - 1;
-      blocoIdx++;
-      _setBtnsOneDrive(`⏳ Bloco ${blocoIdx}/${totalBlocos}…`, true);
-      console.log(`[publicarOneDrive] bloco ${blocoIdx}/${totalBlocos}: bytes ${byteStart}–${byteEnd}/${totalBytes}`);
-      await _uploadChunk(csvUploadUrl, byteStart, byteEnd, totalBytes, chunk);
-      charStart += _CHUNK_CHARS;
-      byteStart += chunkLen;
+    // 2. Recria regras_expandidas do zero (grão idêntico ao CSV publicado hoje)
+    _setBtnsPublicar('⏳ Publicando regras…', true);
+    const { error: errDel } = await sb.from('regras_expandidas').delete().not('id', 'is', null);
+    if (errDel) throw errDel;
+    const CHUNK = 500;
+    for (let i = 0; i < linhasObjeto.length; i += CHUNK) {
+      const bloco = linhasObjeto.slice(i, i + CHUNK);
+      const { error: errIns } = await sb.from('regras_expandidas').insert(bloco);
+      if (errIns) throw errIns;
+      _setBtnsPublicar(`⏳ ${Math.min(i + CHUNK, linhasObjeto.length)}/${linhasObjeto.length} linhas…`, true);
     }
 
-    // 2. Publica JSON de regras (backup para restaurar interface)
-    try {
-      const jsonContent = JSON.stringify(campanhas, null, 2);
-      const jsonBytes   = _ENC.encode(jsonContent).length;
-      const jsonUrl     = await _initUploadSession('ib_campanhas.json');
-      await _uploadChunk(jsonUrl, 0, jsonBytes - 1, jsonBytes, jsonContent);
-    } catch (eJson) {
-      console.warn('[publicarOneDrive] JSON backup falhou:', eJson.message);
-    }
-
-    localStorage.removeItem(_uploadSessionKey('TB_REGRAS_CAMPANHAS.csv'));
-    localStorage.removeItem(_uploadSessionKey('ib_campanhas.json'));
-    toast(`✓ ${linhas} linha(s) publicadas no OneDrive`, 'ok');
+    toast(`✓ ${linhasObjeto.length} linha(s) publicadas — disponíveis para o Dataflow do Power BI`, 'ok');
     if (avisos.length) toast(`⚠ ${avisos.length} aviso(s) na exportação`, 'warn');
 
   } catch (e) {
     toast(`Erro ao publicar: ${e.message}`, 'err');
-    console.error('[publicarOneDrive]', e);
+    console.error('[publicarSupabase]', e);
   } finally {
-    _setBtnsOneDrive('☁️ Publicar OneDrive', false);
+    _setBtnsPublicar('☁️ Publicar', false);
   }
 }
 
@@ -11871,112 +13052,8 @@ function toast(msg, tipo) {
 // ════════════════════════════
 //  IMPORTAR DIMENSOES (JSON gerado por exportar_dims_pbi.py)
 // ════════════════════════════
-function importarDimsArquivo(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const btn = document.querySelector('.btn-atualizar');
-  btn.textContent = '↻ Carregando...';
-  btn.classList.add('carregando');
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      _aplicarDims(data);
-    } catch(err) {
-      toast('Arquivo invalido: ' + err.message, 'err');
-    } finally {
-      btn.textContent = '↻ Atualizar Dados';
-      btn.classList.remove('carregando');
-      input.value = '';
-    }
-  };
-  reader.readAsText(file, 'utf-8');
-}
-
-function _aplicarDims(data) {
-  if (!data || typeof data !== 'object') { toast('JSON invalido','err'); return; }
-
-  // Canal
-  if (Array.isArray(data.canal) && data.canal.length) {
-    DIM.canal.splice(0, DIM.canal.length, ...data.canal.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Segmento
-  if (Array.isArray(data.segmento) && data.segmento.length) {
-    DIM.segmento.splice(0, DIM.segmento.length, ...data.segmento.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Grupo
-  if (Array.isArray(data.grupo) && data.grupo.length) {
-    DIM.grupo.splice(0, DIM.grupo.length, ...data.grupo.map((r,i) => ({
-      cd: r.cd != null ? Number(r.cd) : i+1,
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Produto — grupo pode vir como indice numerico ou como nome
-  if (Array.isArray(data.produto) && data.produto.length) {
-    const grupoMap = {};
-    DIM.grupo.forEach(g => { grupoMap[g.nome] = g.cd; });
-    DIM.produto.splice(0, DIM.produto.length, ...data.produto.map(r => {
-      const gVal = r.grupo;
-      const gIdx = typeof gVal === 'number' ? gVal :
-                   typeof gVal === 'string' && /^\d+$/.test(gVal) ? Number(gVal) :
-                   (grupoMap[String(gVal)] || 0);
-      return { cd: String(r.cd || '').trim(), nome: String(r.nome || '').trim(), grupo: gIdx };
-    }).filter(r => r.cd && r.nome));
-  }
-
-  // Empresa
-  if (Array.isArray(data.empresa) && data.empresa.length) {
-    DIM.empresa.splice(0, DIM.empresa.length, ...data.empresa.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Vendedor
-  if (Array.isArray(data.vendedor) && data.vendedor.length) {
-    DIM.vendedor.splice(0, DIM.vendedor.length, ...data.vendedor.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Resetar selecoes que podem referenciar cds antigos
-  Object.values(FLT).forEach(f => { f.sel = new Set(); });
-
-  // Reconstruir UI
-  buildAdvancedPanels();
-  buildCheckLists();
-  atualizarPreview();
-
-  // Abrir accordions para o usuario ver os dados atualizados imediatamente
-  ['canal', 'segmento', 'grupo', 'produto', 'empresa', 'vendedor'].forEach(dim => {
-    const wrap = document.getElementById(`fb-${dim}-wrap`);
-    if (!wrap) return;
-    const head = wrap.querySelector('.filter-head');
-    const body = document.getElementById(`fb-${dim}`);
-    if (head && body && !body.classList.contains('open')) {
-      head.classList.add('open');
-      body.classList.add('open');
-    }
-  });
-
-  const msg = `${DIM.canal.length} canais · ${DIM.segmento.length} segmentos · ${DIM.grupo.length} grupos · ${DIM.produto.length} produtos`;
-  toast('Dados atualizados — ' + msg, 'ok');
-}
-
 // ════════════════════════════
-init();
+checarSessaoEIniciar();
 </script>
 </body>
 </html>

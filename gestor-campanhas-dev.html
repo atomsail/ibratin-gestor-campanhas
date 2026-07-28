@@ -85,22 +85,6 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
-.btn-atualizar {
-  background: var(--ib-orange);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .14s, transform .1s;
-  white-space: nowrap;
-}
-.btn-atualizar:hover  { background: var(--ib-orange-2); }
-.btn-atualizar:active { transform: scale(.97); }
-.btn-atualizar.carregando { opacity: .7; cursor: wait; }
-
 /* ── LAYOUT ── */
 .app-body {
   display: grid;
@@ -660,6 +644,8 @@ table.metas-table th, table.metas-table td { border: 1px solid var(--border); pa
 table.metas-table th { background: var(--ib-blue-lt); color: var(--ib-blue-deep); padding: 6px 8px; position: sticky; top: 0; z-index: 2; text-align: center; }
 table.metas-table td.vendedor-cell { text-align: left; padding: 6px 8px; position: sticky; left: 0; background: var(--surface); z-index: 1; min-width: 220px; font-weight: 500; }
 table.metas-table th.vendedor-th { position: sticky; left: 0; z-index: 3; text-align: left; padding: 6px 8px; }
+table.metas-table td.codigo-cell { text-align: center; color: var(--muted); position: sticky; left: 220px; background: var(--surface); z-index: 1; }
+table.metas-table th.codigo-th { position: sticky; left: 220px; z-index: 3; }
 table.metas-table input.meta-cell {
   width: 92px; border: none; padding: 6px 8px; text-align: right; font-size: 12px;
   font-family: inherit; background: transparent;
@@ -729,15 +715,9 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
   <div style="display:flex;gap:8px;align-items:center">
     <span class="header-badge" id="badge-total">0 campanhas</span>
     <span class="role-badge" id="badge-role" style="display:none"></span>
-    <button class="btn btn-ghost-white btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
     <button class="btn btn-onedrive btn-sm" id="btn-od-header" onclick="publicarSupabase()" title="Atualiza as tabelas que o Power BI Dataflow consome">☁️ Publicar</button>
-    <button class="btn btn-atualizar btn-sm" onclick="mostrarInstrucoesRelacoes()" title="Requer Power BI Desktop aberto + gerar_relacoes.py executado">⟳ Relações PBI</button>
-    <button class="btn btn-atualizar btn-sm" onclick="document.getElementById('input-dims-json').click()" title="Importe dims_ibratin.json gerado pelo exportar_dims_pbi.py">
-      ↻ Atualizar Dados
-    </button>
     <button class="btn btn-ghost-white btn-sm only-admin" onclick="abrirUsuarios()">👥 Usuários</button>
     <button class="btn btn-ghost-white btn-sm" onclick="fazerLogout()">🚪 Sair</button>
-    <input type="file" id="input-dims-json" accept=".json" style="display:none" onchange="importarDimsArquivo(this)">
   </div>
 </header>
 
@@ -914,9 +894,6 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
         <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="salvar()">
           💾 Salvar Campanha
         </button>
-        <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="exportarRegraCompacta()">
-          📊 Exportar Regra (Power BI)
-        </button>
 
       </div>
     </div>
@@ -930,7 +907,6 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
       <div class="card-header">
         <span>📋 Campanhas Cadastradas</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="exportarTudoCompacto()">📊 Exportar PBI (todas)</button>
           <button class="btn btn-onedrive btn-sm" id="btn-od-lista" onclick="publicarSupabase()" title="Atualiza as tabelas que o Power BI Dataflow consome">☁️ Publicar</button>
           <button class="btn btn-ghost btn-sm only-admin" onclick="excluirTodas()" style="color:var(--danger)">🗑 Excluir todas</button>
         </div>
@@ -11532,21 +11508,6 @@ function _setDimDisponivel(dim, validNomes) {
   if (mudou) updateBadge(dim);
 }
 
-function mostrarInstrucoesRelacoes() {
-  const msg = [
-    'Atualizar Relações de Dimensões',
-    '',
-    'Pré-requisito: Power BI Desktop aberto com Comercial.pbip',
-    '',
-    '1. Aguarde o carregamento completo dos dados no PBI',
-    '2. Execute no terminal:  python gerar_relacoes.py',
-    '3. Aguarde a mensagem CONCLUÍDO no terminal',
-    '',
-    'Clique OK para recarregar do Supabase após executar o script.'
-  ].join('\n');
-  if (confirm(msg)) carregarRelacoes(true);
-}
-
 // ════════════════════════════
 //  INIT
 // ════════════════════════════
@@ -11856,7 +11817,7 @@ function limparAvancado(dim) {
   FLT[dim].adv = { c1Op:'contem', c1Val:'', logic:'E', c2Op:'contem', c2Val:'' };
   FLT[dim].mode = 'basico';
   FLT[dim].sel.clear();
-  buildAdvPanel(dim);
+  fecharAvancado(dim);
   // Resetar checkboxes
   document.querySelectorAll(`[data-dim="${dim}"]`).forEach(cb => cb.checked = false);
   const todosElAdv = document.getElementById(`todos-${dim}`);
@@ -11877,6 +11838,20 @@ function switchTab(dim, tab, btnEl) {
   document.getElementById(`panel-basico-${dim}`).style.display  = tab === 'basico'   ? '' : 'none';
   document.getElementById(`panel-avancado-${dim}`).style.display = tab === 'avancado' ? '' : 'none';
   if (tab === 'avancado') buildAdvPanel(dim);
+}
+
+// Fecha visualmente a aba "Avançado" de uma dimensão, voltando para "Básico"
+// e reconstruindo o painel avançado em branco. Usado por limpar()/limparAvancado()
+// para que um reset de filtro não deixe a aba avançada aberta com texto antigo.
+function fecharAvancado(dim) {
+  const tabs = document.querySelectorAll(`#fb-${dim} .filter-tab`);
+  if (tabs[0]) tabs[0].classList.add('active');
+  if (tabs[1]) tabs[1].classList.remove('active');
+  const pB = document.getElementById(`panel-basico-${dim}`);
+  const pA = document.getElementById(`panel-avancado-${dim}`);
+  if (pB) pB.style.display = '';
+  if (pA) pA.style.display = 'none';
+  buildAdvPanel(dim);
 }
 
 // ════════════════════════════
@@ -12219,6 +12194,7 @@ function limpar() {
     // Limpar input de busca do filtro básico
     const searchInp = document.querySelector(`#panel-basico-${dim} .search-input`);
     if (searchInp) { searchInp.value = ''; filtrarBasico(dim, ''); }
+    fecharAvancado(dim);
     updateBadge(dim);
   });
   MESES_SEL.clear();
@@ -12511,7 +12487,7 @@ function renderTabelaMetas() {
   const buscaEl = document.getElementById('metas-busca-vendedor');
   if (buscaEl) buscaEl.value = '';
 
-  const thead = '<thead><tr><th class="vendedor-th">Vendedor</th><th>Cód.</th>' +
+  const thead = '<thead><tr><th class="vendedor-th">Vendedor</th><th class="codigo-th">Cód.</th>' +
     METAS_MESES_NOME.map(m => `<th>${m}</th>`).join('') + '<th>Total</th></tr></thead>';
 
   const totCols = new Array(12).fill(0);
@@ -12520,7 +12496,7 @@ function renderTabelaMetas() {
     let totalLinha = 0;
     const buscaTexto = escHtml((String(v.cd) + ' ' + v.nome).toLowerCase());
     tbody += `<tr data-busca-texto="${buscaTexto}"><td class="vendedor-cell">${escHtml(v.nome)}</td>` +
-      `<td style="text-align:center;color:var(--muted)">${escHtml(String(v.cd))}</td>`;
+      `<td class="codigo-cell">${escHtml(String(v.cd))}</td>`;
     for (let m = 1; m <= 12; m++) {
       const ativo = mesesAtivos.has(m);
       const valor = (dados[v.cd] && dados[v.cd][m]) || 0;
@@ -12535,7 +12511,7 @@ function renderTabelaMetas() {
   tbody += '</tbody>';
 
   const grand = totCols.reduce((a,b) => a+b, 0);
-  const tfoot = '<tfoot><tr class="total-row"><td class="vendedor-cell">Total</td>' +
+  const tfoot = '<tfoot><tr class="total-row"><td class="vendedor-cell">Total</td><td class="codigo-cell"></td>' +
     totCols.map(t => `<td style="text-align:right;padding:6px 8px">${t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td>`).join('') +
     `<td style="text-align:right;padding:6px 8px">${grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr></tfoot>`;
 
@@ -12580,7 +12556,7 @@ function atualizarTotaisMetas() {
   });
   const footRow = table.querySelector('tfoot tr');
   if (footRow) {
-    const footCells = [...footRow.querySelectorAll('td')].slice(1);
+    const footCells = [...footRow.querySelectorAll('td')].slice(2);
     totCols.forEach((t, i) => { if (footCells[i]) footCells[i].textContent = t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''; });
     const grand = totCols.reduce((a,b) => a+b, 0);
     if (footCells[12]) footCells[12].textContent = grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
@@ -12824,31 +12800,6 @@ function _gerarLinhasCompactas(nome, desc, objetivo, cod, dtCadastro, dtUltimaMo
   return { linhas, avisos };
 }
 
-function exportarRegraCompacta() {
-  const nome     = document.getElementById('inp-nome').value.trim();
-  const desc     = document.getElementById('inp-desc').value.trim();
-  const objetivo = document.getElementById('inp-objetivo').value.trim();
-  if (!nome)           { toast('Informe o nome da campanha antes de exportar','err'); return; }
-  if (!MESES_SEL.size) { toast('Selecione pelo menos um mês','err'); return; }
-  const fltAtual = {
-    canal: FLT.canal, segmento: FLT.segmento, empresa: FLT.empresa,
-    vendedor: FLT.vendedor, produto: FLT.produto, grupo: FLT.grupo
-  };
-  const { linhas, avisos } = _gerarLinhasCompactas(
-    nome, desc, objetivo,
-    '', '', '',
-    fltAtual, MESES_SEL
-  );
-  if (avisos.length) {
-    if (!confirm('Atenção:\n\n' + avisos.join('\n') + '\n\nContinuar mesmo assim?')) return;
-  }
-  const csv = ['COD_CAMPANHA,CAMPANHA,DESCRICAO,OBJETIVO,DT_CADASTRO,DT_ULTIMA_MODIF,DT_REF,CANAL,SEGMENTO,EMPRESA,VENDEDOR,PRODUTO,GRUPO',
-               ...linhas].join('\r\n');
-  const safeName = nome.replace(/[<>:"/\\|?*]/g, '_');
-  downloadCSV(csv, `REGRA_PBI_${safeName}_${new Date().toISOString().slice(0,10)}.csv`);
-  toast(`Regra exportada — ${linhas.length} linha(s)`, 'ok');
-}
-
 // ─── Geração de CSV (compartilhado entre download e publicação no Supabase) ──
 function _gerarCsvContent() {
   const header = 'COD_CAMPANHA,CAMPANHA,DESCRICAO,OBJETIVO,DT_CADASTRO,DT_ULTIMA_MODIF,DT_REF,CANAL,SEGMENTO,EMPRESA,VENDEDOR,PRODUTO,GRUPO';
@@ -12868,39 +12819,6 @@ function _gerarCsvContent() {
     linhas: todasLinhas.length,
     avisos: todosAvisos,
   };
-}
-
-async function exportarTudoCompacto() {
-  try {
-    if (!campanhas.length) { toast('Nenhuma campanha cadastrada', 'err'); return; }
-    const { csv, linhas, avisos } = _gerarCsvContent();
-    if (avisos.length) {
-      if (!confirm('Atenção em algumas campanhas:\n\n' + avisos.join('\n') + '\n\nContinuar mesmo assim?')) return;
-    }
-    const conteudo = '﻿' + csv;
-
-    if (window.showSaveFilePicker) {
-      try {
-        const handle = await window.showSaveFilePicker({
-          suggestedName: 'TB_REGRAS_CAMPANHAS.csv',
-          types: [{ description: 'CSV', accept: { 'text/csv': ['.csv'] } }]
-        });
-        const writable = await handle.createWritable();
-        await writable.write(conteudo);
-        await writable.close();
-        toast(`✓ ${linhas} linha(s) salvas em "${handle.name}"`, 'ok');
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') return;
-      }
-    }
-
-    downloadCSV(csv, 'TB_REGRAS_CAMPANHAS.csv');
-    toast(`${linhas} linha(s) exportadas — salve como TB_REGRAS_CAMPANHAS.csv`, 'ok');
-  } catch (e) {
-    toast(`Erro ao exportar: ${e.message}`, 'err');
-    console.error('[exportarTudoCompacto]', e);
-  }
 }
 
 // ─── Persistência via Supabase (substitui OneDrive/n8n) ───────────────────────
@@ -13134,110 +13052,6 @@ function toast(msg, tipo) {
 // ════════════════════════════
 //  IMPORTAR DIMENSOES (JSON gerado por exportar_dims_pbi.py)
 // ════════════════════════════
-function importarDimsArquivo(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const btn = document.querySelector('.btn-atualizar');
-  btn.textContent = '↻ Carregando...';
-  btn.classList.add('carregando');
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      _aplicarDims(data);
-    } catch(err) {
-      toast('Arquivo invalido: ' + err.message, 'err');
-    } finally {
-      btn.textContent = '↻ Atualizar Dados';
-      btn.classList.remove('carregando');
-      input.value = '';
-    }
-  };
-  reader.readAsText(file, 'utf-8');
-}
-
-function _aplicarDims(data) {
-  if (!data || typeof data !== 'object') { toast('JSON invalido','err'); return; }
-
-  // Canal
-  if (Array.isArray(data.canal) && data.canal.length) {
-    DIM.canal.splice(0, DIM.canal.length, ...data.canal.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Segmento
-  if (Array.isArray(data.segmento) && data.segmento.length) {
-    DIM.segmento.splice(0, DIM.segmento.length, ...data.segmento.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Grupo
-  if (Array.isArray(data.grupo) && data.grupo.length) {
-    DIM.grupo.splice(0, DIM.grupo.length, ...data.grupo.map((r,i) => ({
-      cd: r.cd != null ? Number(r.cd) : i+1,
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Produto — grupo pode vir como indice numerico ou como nome
-  if (Array.isArray(data.produto) && data.produto.length) {
-    const grupoMap = {};
-    DIM.grupo.forEach(g => { grupoMap[g.nome] = g.cd; });
-    DIM.produto.splice(0, DIM.produto.length, ...data.produto.map(r => {
-      const gVal = r.grupo;
-      const gIdx = typeof gVal === 'number' ? gVal :
-                   typeof gVal === 'string' && /^\d+$/.test(gVal) ? Number(gVal) :
-                   (grupoMap[String(gVal)] || 0);
-      return { cd: String(r.cd || '').trim(), nome: String(r.nome || '').trim(), grupo: gIdx };
-    }).filter(r => r.cd && r.nome));
-  }
-
-  // Empresa
-  if (Array.isArray(data.empresa) && data.empresa.length) {
-    DIM.empresa.splice(0, DIM.empresa.length, ...data.empresa.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Vendedor
-  if (Array.isArray(data.vendedor) && data.vendedor.length) {
-    DIM.vendedor.splice(0, DIM.vendedor.length, ...data.vendedor.map((r,i) => ({
-      cd: r.cd != null ? String(r.cd) : String(i+1),
-      nome: String(r.nome || '').trim()
-    })).filter(r => r.nome));
-  }
-
-  // Resetar selecoes que podem referenciar cds antigos
-  Object.values(FLT).forEach(f => { f.sel = new Set(); });
-
-  // Reconstruir UI
-  buildAdvancedPanels();
-  buildCheckLists();
-  atualizarPreview();
-
-  // Abrir accordions para o usuario ver os dados atualizados imediatamente
-  ['canal', 'segmento', 'grupo', 'produto', 'empresa', 'vendedor'].forEach(dim => {
-    const wrap = document.getElementById(`fb-${dim}-wrap`);
-    if (!wrap) return;
-    const head = wrap.querySelector('.filter-head');
-    const body = document.getElementById(`fb-${dim}`);
-    if (head && body && !body.classList.contains('open')) {
-      head.classList.add('open');
-      body.classList.add('open');
-    }
-  });
-
-  const msg = `${DIM.canal.length} canais · ${DIM.segmento.length} segmentos · ${DIM.grupo.length} grupos · ${DIM.produto.length} produtos`;
-  toast('Dados atualizados — ' + msg, 'ok');
-}
-
 // ════════════════════════════
 checarSessaoEIniciar();
 </script>
