@@ -350,8 +350,8 @@ textarea.form-control { resize: vertical; min-height: 56px; }
 
 .adv-actions { display: flex; gap: 6px; }
 
-/* ── MONTH GRID ── */
-.year-row { display: flex; gap: 6px; margin-bottom: 8px; padding: 8px 10px 0; }
+/* ── ANO DE VIGÊNCIA ── */
+.year-row { display: flex; gap: 6px; padding: 8px 10px 10px; }
 .year-btn {
   border: 1px solid var(--border);
   background: #fff;
@@ -365,29 +365,6 @@ textarea.form-control { resize: vertical; min-height: 56px; }
 }
 .year-btn.sel { background: var(--ib-blue); border-color: var(--ib-blue); color: #fff; }
 .year-btn:hover:not(.sel) { border-color: var(--ib-blue); color: var(--ib-blue); }
-
-.month-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: 0 10px 10px;
-}
-.month-btn {
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 4px;
-  padding: 6px 2px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  font-family: inherit;
-  transition: all .12s;
-}
-.month-btn:hover { border-color: var(--ib-blue); color: var(--ib-blue); }
-.month-btn.sel { background: var(--ib-blue); border-color: var(--ib-blue); color: #fff; }
-.month-btn.todos-mes { grid-column: 1/-1; background: var(--ib-blue-lt); border-color: var(--ib-blue-mid); color: var(--ib-blue); margin-bottom: 2px; font-weight: 700; }
-.month-btn.todos-mes.sel { background: var(--ib-blue); border-color: var(--ib-blue); color: #fff; }
 
 /* ── BUTTONS ── */
 .btn {
@@ -751,18 +728,17 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
         </div>
 
         <hr class="divider">
-        <p class="section-label">Período de Vigência (Mês / Ano)</p>
+        <p class="section-label">Período de Vigência (Ano)</p>
 
-        <!-- MESES -->
+        <!-- ANO -->
         <div class="filter-block">
           <div class="filter-head" onclick="toggleAccordion(this)">
-            <span class="filter-title">📅 Mês / Ano</span>
+            <span class="filter-title">📅 Ano</span>
             <span class="filter-badge none" id="badge-mes">Nenhum</span>
             <span class="chevron">▼</span>
           </div>
           <div class="filter-body" id="fb-mes">
             <div class="year-row" id="year-row"></div>
-            <div class="month-grid" id="month-grid"></div>
           </div>
         </div>
 
@@ -11514,8 +11490,7 @@ function _setDimDisponivel(dim, validNomes) {
 async function init() {
   buildCheckLists();
   buildAdvancedPanels();
-  buildYearRow();
-  buildMonthGrid();
+  resetAnoVigente();
   await carregarDoSupabase();  // tenta Supabase → fallback localStorage
   await carregarRelacoes();    // cross-filter: combinações válidas entre dimensões
   renderCampanhas();
@@ -11840,18 +11815,30 @@ function switchTab(dim, tab, btnEl) {
   if (tab === 'avancado') buildAdvPanel(dim);
 }
 
+// Sincroniza a UI da aba (Básico/Avançado) de uma dimensão com o modo dado —
+// classe "active" dos botões, visibilidade dos paineis, e reconstrói o painel
+// avançado quando necessário. Usado tanto para reset (fecharAvancado, sempre
+// 'basico') quanto para restaurar o modo salvo de uma campanha ao editar
+// (editarCampanha()). Dimensões com a aba Básico desabilitada (acima de
+// LIMITE_BASICO, ver buildCL) sempre forçam Avançado, independente do modo
+// pedido.
+function sincronizarAbaFiltro(dim, mode) {
+  const tabs = document.querySelectorAll(`#fb-${dim} .filter-tab`);
+  const modoEfetivo = (tabs[0] && tabs[0].disabled) ? 'avancado' : mode;
+  if (tabs[0]) tabs[0].classList.toggle('active', modoEfetivo !== 'avancado');
+  if (tabs[1]) tabs[1].classList.toggle('active', modoEfetivo === 'avancado');
+  const pB = document.getElementById(`panel-basico-${dim}`);
+  const pA = document.getElementById(`panel-avancado-${dim}`);
+  if (pB) pB.style.display = modoEfetivo === 'avancado' ? 'none' : '';
+  if (pA) pA.style.display = modoEfetivo === 'avancado' ? '' : 'none';
+  if (modoEfetivo === 'avancado') buildAdvPanel(dim);
+}
+
 // Fecha visualmente a aba "Avançado" de uma dimensão, voltando para "Básico"
 // e reconstruindo o painel avançado em branco. Usado por limpar()/limparAvancado()
 // para que um reset de filtro não deixe a aba avançada aberta com texto antigo.
 function fecharAvancado(dim) {
-  const tabs = document.querySelectorAll(`#fb-${dim} .filter-tab`);
-  if (tabs[0]) tabs[0].classList.add('active');
-  if (tabs[1]) tabs[1].classList.remove('active');
-  const pB = document.getElementById(`panel-basico-${dim}`);
-  const pA = document.getElementById(`panel-avancado-${dim}`);
-  if (pB) pB.style.display = '';
-  if (pA) pA.style.display = 'none';
-  buildAdvPanel(dim);
+  sincronizarAbaFiltro(dim, 'basico');
 }
 
 // ════════════════════════════
@@ -11888,51 +11875,49 @@ function updateBadge(dim) {
 }
 
 // ════════════════════════════
-//  MESES
+//  ANO DE VIGÊNCIA
 // ════════════════════════════
-function buildYearRow() {
-  const anos = [anoVigente-1, anoVigente, anoVigente+1];
-  document.getElementById('year-row').innerHTML = anos.map(a =>
-    `<button class="year-btn ${a===anoVigente?'sel':''}" onclick="setAno(${a})">${a}</button>`
-  ).join('');
+// Os 12 meses "YYYY-MM" de um ano — usado para expandir a seleção de ano
+// direto em MESES_SEL (os meses individuais não são mais escolhidos na UI;
+// quem decide em quais meses a campanha realmente roda é a meta lançada na
+// grade de Metas, ver publicarSupabase()).
+function mesesDoAno(ano) {
+  return [...Array(12)].map((_, i) => `${ano}-${String(i + 1).padStart(2, '0')}`);
 }
 
-function setAno(a) { anoVigente = a; buildYearRow(); buildMonthGrid(); }
-
-function buildMonthGrid() {
-  const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const todosAno = [...Array(12)].map((_,i) => `${anoVigente}-${String(i+1).padStart(2,'0')}`);
-  const todosSel = todosAno.every(k => MESES_SEL.has(k));
-  let html = `<button class="month-btn todos-mes ${todosSel?'sel':''}" onclick="toggleTodosMeses()">
-    TODOS ${anoVigente}
-  </button>`;
-  nomes.forEach((n,i) => {
-    const k = `${anoVigente}-${String(i+1).padStart(2,'0')}`;
-    html += `<button class="month-btn ${MESES_SEL.has(k)?'sel':''}" onclick="toggleMes('${k}')">${n}/${String(anoVigente).slice(-2)}</button>`;
-  });
-  document.getElementById('month-grid').innerHTML = html;
+function buildYearRow() {
+  const anos = [anoVigente - 1, anoVigente, anoVigente + 1];
+  document.getElementById('year-row').innerHTML = anos.map(a => {
+    const selecionado = mesesDoAno(a).every(k => MESES_SEL.has(k));
+    return `<button class="year-btn ${selecionado ? 'sel' : ''}" onclick="selecionarAno(${a})">${a}</button>`;
+  }).join('');
   updateBadgeMes();
 }
 
-function toggleMes(k) {
-  MESES_SEL.has(k) ? MESES_SEL.delete(k) : MESES_SEL.add(k);
-  buildMonthGrid();
+// Seleção de ano é única — escolher um ano substitui qualquer seleção
+// anterior (não acumula múltiplos anos).
+function selecionarAno(a) {
+  MESES_SEL.clear();
+  mesesDoAno(a).forEach(k => MESES_SEL.add(k));
+  anoVigente = a;
+  buildYearRow();
   atualizarPreview();
 }
 
-function toggleTodosMeses() {
-  const todos = [...Array(12)].map((_,i) => `${anoVigente}-${String(i+1).padStart(2,'0')}`);
-  const all = todos.every(k => MESES_SEL.has(k));
-  todos.forEach(k => all ? MESES_SEL.delete(k) : MESES_SEL.add(k));
-  buildMonthGrid();
-  atualizarPreview();
+// Restaura o padrão: ano atual do sistema pré-selecionado. Usado na carga
+// inicial da página e sempre que o formulário é resetado (limpar()/salvar()).
+function resetAnoVigente() {
+  anoVigente = new Date().getFullYear();
+  MESES_SEL.clear();
+  mesesDoAno(anoVigente).forEach(k => MESES_SEL.add(k));
+  buildYearRow();
 }
 
 function updateBadgeMes() {
   const el = document.getElementById('badge-mes');
-  const n = MESES_SEL.size;
-  if (n === 0) { el.textContent='Nenhum'; el.className='filter-badge none'; }
-  else         { el.textContent=`${n} mês(es)`; el.className='filter-badge'; }
+  const anos = [...new Set([...MESES_SEL].map(m => m.split('-')[0]))].sort();
+  if (anos.length === 0) { el.textContent = 'Nenhum'; el.className = 'filter-badge none'; }
+  else                   { el.textContent = `${anos.length} ano(s)`; el.className = 'filter-badge'; }
 }
 
 // ════════════════════════════
@@ -12063,7 +12048,7 @@ async function salvar() {
   const desc     = document.getElementById('inp-desc').value.trim();
   const objetivo = document.getElementById('inp-objetivo').value.trim();
   if (!nome) { toast('Informe o nome da campanha','err'); return; }
-  if (!MESES_SEL.size) { toast('Selecione pelo menos um mês','err'); return; }
+  if (!MESES_SEL.size) { toast('Selecione pelo menos um ano','err'); return; }
 
   const agora = new Date().toISOString();
   const campanha = {
@@ -12130,8 +12115,8 @@ function editarCampanha(idx) {
     const todosEl = document.getElementById(`todos-${dim}`);
     if (todosEl) todosEl.checked = FLT[dim].sel.size === tot;
     updateBadge(dim);
-    // Se estava em avançado, rebuildar painel
-    if (c.flt[dim].mode === 'avancado') buildAdvPanel(dim);
+    // Sincronizar a aba (Básico/Avançado) visível com o modo salvo
+    sincronizarAbaFiltro(dim, c.flt[dim].mode);
   });
 
   MESES_SEL.clear();
@@ -12139,9 +12124,8 @@ function editarCampanha(idx) {
   // Ajustar ano para o primeiro mês salvo
   if (c.meses.length) {
     anoVigente = parseInt(c.meses[0].split('-')[0]);
-    buildYearRow();
   }
-  buildMonthGrid();
+  buildYearRow();
   atualizarPreview();
   // Banner de modo edição
   const banner = document.getElementById('edit-mode-banner');
@@ -12197,8 +12181,7 @@ function limpar() {
     fecharAvancado(dim);
     updateBadge(dim);
   });
-  MESES_SEL.clear();
-  buildMonthGrid();
+  resetAnoVigente();
   atualizarPreview();
 }
 
@@ -12246,15 +12229,14 @@ function renderCampanhas() {
   const inicio    = campPage * CAMP_PER_PAGE;
   const itensPag  = itens.slice(inicio, inicio + CAMP_PER_PAGE);
 
-  const MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const DIMS_LABEL = { canal:'Canal', segmento:'Segmento', empresa:'Empresa', vendedor:'Vendedor', produto:'Produto', grupo:'Grupo' };
   const fmtDt = iso => iso ? new Date(iso).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : null;
 
   el.innerHTML = itensPag.map(({c, i}) => {
-    const mesesStr = [...c.meses].sort().map(m => {
-      const [y, mo] = m.split('-');
-      return `${MESES_NOME[+mo - 1]}/${y.slice(-2)}`;
-    }).join(' · ');
+    const anosVigencia = [...new Set(c.meses.map(m => m.split('-')[0]))].sort();
+    const mesesStr = anosVigencia.length
+      ? `Vigência: ${anosVigencia.join(', ')}`
+      : 'Vigência: nenhum ano selecionado';
 
     const pills = ['canal','segmento','empresa','vendedor','produto','grupo'].map(dim => {
       const flt = c.flt[dim];
@@ -12908,6 +12890,34 @@ async function sincronizarOrdemSupabase() {
   }
 }
 
+// Busca, para cada campanha, os meses "YYYY-MM" que têm meta lançada
+// (valor > 0) na tabela metas — é isso, e não mais camp.meses, que decide
+// quais meses viram linhas em regras_expandidas. Pagina de verdade (o
+// Supabase limita select() a 1000 linhas por padrão e não há nenhum outro
+// .range() no código hoje — sem paginação aqui, campanhas/meses inteiros
+// sumiriam de regras_expandidas em silêncio assim que metas passar de 1000
+// linhas).
+async function buscarMesesAtivosPorCampanha() {
+  const mapa = new Map(); // cod_campanha -> Set("YYYY-MM")
+  const PAGE = 1000;
+  let offset = 0;
+  while (true) {
+    const { data, error } = await sb.from('metas')
+      .select('campanha_cod,ano,mes,valor')
+      .gt('valor', 0)
+      .range(offset, offset + PAGE - 1);
+    if (error) throw error;
+    if (!data.length) break;
+    for (const r of data) {
+      if (!mapa.has(r.campanha_cod)) mapa.set(r.campanha_cod, new Set());
+      mapa.get(r.campanha_cod).add(`${r.ano}-${String(r.mes).padStart(2, '0')}`);
+    }
+    if (data.length < PAGE) break; // última página
+    offset += PAGE;
+  }
+  return mapa;
+}
+
 // Reconstrói regras_expandidas com o grão do CSV atual, direto no Supabase
 // (reaproveita 100% de _gerarLinhasCompactas — evita reimplementar os filtros em SQL).
 async function publicarSupabase() {
@@ -12918,6 +12928,7 @@ async function publicarSupabase() {
     const DIMS = ['canal','segmento','empresa','vendedor','produto','grupo'];
     const linhasObjeto = [];
     const avisos = [];
+    const mapaMesesAtivos = await buscarMesesAtivosPorCampanha();
 
     campanhas.forEach(camp => {
       const dimValores = {};
@@ -12926,7 +12937,7 @@ async function publicarSupabase() {
         dimValores[dim] = r.valores;
         if (r.aviso) avisos.push(`[${camp.nome}] ${r.aviso}`);
       }
-      const mesList = [...camp.meses].sort();
+      const mesList = [...(mapaMesesAtivos.get(camp.cod) || [])].sort();
       for (const mes of mesList) {
         const [y, m] = mes.split('-');
         let combos = [[]];
