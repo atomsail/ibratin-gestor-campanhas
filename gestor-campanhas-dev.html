@@ -95,6 +95,29 @@ body {
   margin: 0 auto;
 }
 
+/* ── TAB NAV (Regras de Campanhas / Metas Corporativas) ── */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all .14s;
+}
+.tab-btn:hover { color: var(--ib-blue); background: var(--ib-blue-lt); }
+.tab-btn.active { color: var(--ib-blue); border-bottom-color: var(--ib-blue); }
+
 /* ── CARD ── */
 .card {
   background: var(--surface);
@@ -687,7 +710,7 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
   <h1>
     <span class="brand-name">ibr<span>a</span>tin</span>
     <span class="brand-divider"></span>
-    <span class="brand-sub">Gestor de Regras por Campanha</span>
+    <span class="brand-sub">Gestor de Metas Corporativas</span>
   </h1>
   <div style="display:flex;gap:8px;align-items:center">
     <span class="header-badge" id="badge-total">0 campanhas</span>
@@ -698,8 +721,14 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
   </div>
 </header>
 
+<!-- NAV DE ABAS -->
+<nav class="tab-nav">
+  <button class="tab-btn active" id="tab-btn-regras" onclick="mudarTab('regras')">📋 Regras de Campanhas</button>
+  <button class="tab-btn" id="tab-btn-metas-corp" onclick="mudarTab('metas-corp')">🎯 Metas Corporativas</button>
+</nav>
+
 <!-- BODY -->
-<div class="app-body">
+<div class="app-body" id="tab-panel-regras">
 
   <!-- ═══════════ PAINEL ESQUERDO ═══════════ -->
   <div style="display:flex;flex-direction:column;gap:0">
@@ -899,6 +928,114 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
   </div>
 </div>
 
+<!-- BODY: METAS CORPORATIVAS -->
+<div class="app-body" id="tab-panel-metas-corp" style="display:none">
+
+  <!-- ═══════════ PAINEL ESQUERDO ═══════════ -->
+  <div style="display:flex;flex-direction:column;gap:0">
+    <div class="card">
+      <div class="card-header">
+        <span>🎯 Definição da Meta Corporativa</span>
+        <button class="btn btn-ghost btn-sm" onclick="limparFormMC()">↺ Limpar</button>
+      </div>
+      <div class="edit-mode-banner" id="mc-edit-mode-banner">
+        ✏️ Editando: <span class="edit-nome" id="mc-edit-mode-nome"></span><span id="mc-edit-mode-cod" style="font-size:11px;opacity:.75;margin-left:6px"></span>
+        <button class="btn-cancel-edit" onclick="limparFormMC()">✕ Cancelar</button>
+      </div>
+      <div class="card-body">
+
+        <div class="form-group">
+          <label class="form-label">Nome da Meta *</label>
+          <input class="form-control" id="mc-inp-nome" placeholder="Ex: META_VENDEDOR_2026">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea class="form-control" id="mc-inp-desc" placeholder="Descrição da meta..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Objetivo</label>
+          <textarea class="form-control" id="mc-inp-objetivo" placeholder="Ex: Meta de faturamento por vendedor..."></textarea>
+        </div>
+
+        <hr class="divider">
+        <p class="section-label">Ano e Agrupamento</p>
+
+        <div class="filter-block">
+          <div class="filter-head" onclick="toggleAccordion(this)">
+            <span class="filter-title">📅 Ano</span>
+            <span class="filter-badge none" id="badge-mc-ano">Nenhum</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="filter-body" id="fb-mc-ano">
+            <div class="year-row" id="mc-year-row"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Agrupamento *</label>
+          <select class="form-control" id="mc-inp-agrupamento" onchange="onAgrupamentoChange(this.value)">
+            <option value="canal">Canal</option>
+            <option value="segmento">Segmento</option>
+            <option value="grupo">Grupo de Produto</option>
+            <option value="produto">Produto</option>
+            <option value="empresa">Empresa</option>
+            <option value="vendedor" selected>Vendedor</option>
+          </select>
+        </div>
+
+        <hr class="divider">
+        <p class="section-label">Filtro (opcional — vazio = todos os itens)</p>
+
+        <div class="filter-block" id="fb-mc-wrap">
+          <div class="filter-head" onclick="toggleAccordion(this)">
+            <span class="filter-title" id="mc-filter-title">👤 Vendedor</span>
+            <span class="filter-badge none" id="badge-mc">Nenhum (todos)</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="filter-body" id="fb-mc">
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="switchTabMC('basico',this)">Básico</button>
+              <button class="filter-tab" onclick="switchTabMC('avancado',this)">Avançado</button>
+            </div>
+            <div class="panel-basico" id="panel-basico-mc">
+              <input class="search-input" placeholder="🔍 Pesquisar..." oninput="filtrarBasicoMC(this.value)">
+              <div class="check-list" id="cl-mc"></div>
+            </div>
+            <div class="panel-avancado" id="panel-avancado-mc" style="display:none"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="salvarMetaCorporativa()">
+          💾 Salvar Meta Corporativa
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PAINEL DIREITO ═══════════ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <div class="card">
+      <div class="card-header">
+        <span>📋 Metas Corporativas Cadastradas</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-onedrive btn-sm" onclick="publicarMetasCorporativas()" title="Atualiza metas_corporativas_expandidas para o Power BI Dataflow">☁️ Publicar</button>
+          <button class="btn btn-ghost btn-sm only-admin" onclick="excluirTodasMC()" style="color:var(--danger)">🗑 Excluir todas</button>
+        </div>
+      </div>
+      <div class="camp-search-wrap">
+        <input class="form-control" id="mc-inp-busca" placeholder="🔍 Buscar meta por nome ou descrição..." oninput="filtrarMetasCorp(this.value)">
+      </div>
+      <div class="card-body" id="lista-metas-corp">
+        <div class="empty-state"><div class="icon">📭</div><p>Nenhuma Meta Corporativa cadastrada ainda.</p></div>
+      </div>
+      <div id="mc-paginacao" class="camp-paginacao" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <!-- ═══════════ MODAL: METAS POR VENDEDOR ═══════════ -->
@@ -940,6 +1077,29 @@ table.users-table select { padding: 3px 6px; border-radius: 4px; border: 1px sol
         <thead><tr><th>E-mail</th><th>Papel</th><th>Ativo</th><th>Criado em</th></tr></thead>
         <tbody id="users-tbody"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: VALORES DA META CORPORATIVA ═══════════ -->
+<div class="modal-overlay" id="modal-mc-valores" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>🎯 Valores — <span id="mc-valores-nome"></span> <span id="mc-valores-cod" style="font-size:11px;color:var(--muted);font-weight:400"></span> · <span id="mc-valores-ano"></span></h3>
+      <button class="modal-close" onclick="fecharValoresMC()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="metas-readonly-notice only-restrito">
+        Você tem acesso somente leitura. Apenas administradores podem editar valores.
+      </div>
+      <div class="metas-toolbar">
+        <input class="form-control" id="mc-busca-item" placeholder="🔍 Buscar item (código ou nome)…" oninput="filtrarBuscaMC(this.value)" style="max-width:260px">
+        <span style="flex:1"></span>
+        <button class="btn btn-primary btn-sm only-admin" id="btn-salvar-mc-valores" onclick="salvarValoresMC()">💾 Salvar Valores</button>
+      </div>
+      <div class="metas-table-wrap">
+        <table class="metas-table" id="mc-valores-table"></table>
+      </div>
     </div>
   </div>
 </div>
@@ -11223,6 +11383,22 @@ const CAMP_PER_PAGE = 8;
 let dragRealIdx = null;
 
 // ════════════════════════════
+//  METAS CORPORATIVAS — ESTADO
+// ════════════════════════════
+const MC_AGRUPAMENTO_LABEL = { canal:'Canal', segmento:'Segmento', grupo:'Grupo de Produto', produto:'Produto', empresa:'Empresa', vendedor:'Vendedor' };
+const MC_AGRUPAMENTO_ICON  = { canal:'📡', segmento:'🏷', grupo:'📦', produto:'🔖', empresa:'🏢', vendedor:'👤' };
+
+let metasCorp = JSON.parse(localStorage.getItem('ib_metas_corp') || '[]');
+let mcEditIdx = null;
+let mcSearchQ = '';
+let mcPage    = 0;
+const MC_PER_PAGE = 8;
+
+// Filtro de UMA dimensão só (diferente de FLT, que tem 1 entrada por dimensão),
+// já que uma Meta Corporativa tem um único agrupamento ativo por vez.
+let FLT_MC = { dim: 'vendedor', mode: 'basico', sel: new Set(), adv: { c1Op:'contem', c1Val:'', logic:'E', c2Op:'contem', c2Val:'' } };
+
+// ════════════════════════════
 //  AUTENTICAÇÃO (Supabase Auth + profiles)
 // ════════════════════════════
 
@@ -11495,6 +11671,11 @@ async function init() {
   await carregarRelacoes();    // cross-filter: combinações válidas entre dimensões
   renderCampanhas();
   atualizarPreview();
+
+  resetAnoVigenteMC();
+  onAgrupamentoChange(document.getElementById('mc-inp-agrupamento').value);
+  await carregarMetasCorporativasDoSupabase();
+  renderMetasCorporativas();
 }
 
 // Dimensões com muitos itens (>5000): só modo avançado pra não travar o browser
@@ -11926,6 +12107,16 @@ function updateBadgeMes() {
 function toggleAccordion(head) {
   head.classList.toggle('open');
   head.nextElementSibling.classList.toggle('open');
+}
+
+// ════════════════════════════
+//  NAVEGAÇÃO POR ABAS
+// ════════════════════════════
+function mudarTab(tab) {
+  document.getElementById('tab-panel-regras').style.display     = tab === 'regras' ? '' : 'none';
+  document.getElementById('tab-panel-metas-corp').style.display = tab === 'metas-corp' ? '' : 'none';
+  document.getElementById('tab-btn-regras').classList.toggle('active', tab === 'regras');
+  document.getElementById('tab-btn-metas-corp').classList.toggle('active', tab === 'metas-corp');
 }
 
 // ════════════════════════════
@@ -12396,6 +12587,568 @@ async function duplicarCampanha(idx) {
 }
 
 // ════════════════════════════
+//  METAS CORPORATIVAS — FILTRO (uma única dimensão)
+// ════════════════════════════
+// Ano da Meta Corporativa — mesmo padrão visual/comportamento de buildYearRow()/
+// selecionarAno() (campanhas): seleção única, um botão por ano, sem acumular.
+let mcAnoVigente = new Date().getFullYear();
+
+function buildYearRowMC() {
+  const anos = [mcAnoVigente - 1, mcAnoVigente, mcAnoVigente + 1];
+  document.getElementById('mc-year-row').innerHTML = anos.map(a =>
+    `<button class="year-btn ${a === mcAnoVigente ? 'sel' : ''}" onclick="selecionarAnoMC(${a})">${a}</button>`
+  ).join('');
+  updateBadgeMcAno();
+}
+
+function selecionarAnoMC(a) {
+  mcAnoVigente = a;
+  buildYearRowMC();
+}
+
+function resetAnoVigenteMC() {
+  mcAnoVigente = new Date().getFullYear();
+  buildYearRowMC();
+}
+
+function updateBadgeMcAno() {
+  const el = document.getElementById('badge-mc-ano');
+  el.textContent = String(mcAnoVigente);
+  el.className = 'filter-badge';
+}
+
+function onAgrupamentoChange(dim) {
+  FLT_MC = { dim, mode:'basico', sel:new Set(), adv:{ c1Op:'contem', c1Val:'', logic:'E', c2Op:'contem', c2Val:'' } };
+  document.getElementById('mc-filter-title').textContent = `${MC_AGRUPAMENTO_ICON[dim]} ${MC_AGRUPAMENTO_LABEL[dim]}`;
+  buildCLMC(dim);
+  buildAdvPanelMC();
+  const tabs = document.querySelectorAll('#fb-mc .filter-tab');
+  if (tabs[0] && !tabs[0].disabled) switchTabMC('basico', tabs[0]);
+  updateBadgeMC();
+}
+
+function buildCLMC(dim) {
+  const items = DIM[dim] || [];
+  const el = document.getElementById('cl-mc');
+
+  if (items.length === 0) {
+    el.innerHTML = `<div style="padding:12px 14px;color:var(--muted);font-size:12px;line-height:1.5">
+      Sem dados. Execute <b>exportar_dims_pbi.py</b> e recarregue a página.
+    </div>`;
+    return;
+  }
+
+  if (items.length > LIMITE_BASICO) {
+    el.innerHTML = `<div style="padding:12px 14px;color:var(--muted);font-size:12px;line-height:1.5">
+      <b>${items.length.toLocaleString('pt-BR')} itens</b> nesta dimensão.<br>
+      Use a aba <b>Avançado</b> para filtrar por texto (Contém, Igual a, etc.).
+    </div>`;
+    document.querySelectorAll('#fb-mc-wrap .filter-tab').forEach(t => {
+      const lbl = t.textContent.trim().toLowerCase();
+      if (lbl === 'básico' || lbl === 'basico') {
+        t.disabled = true;
+        t.title = `${items.length.toLocaleString('pt-BR')} itens — use o filtro Avançado`;
+        t.style.opacity = '.45';
+        t.classList.remove('active');
+      } else {
+        t.classList.add('active');
+      }
+    });
+    document.getElementById('panel-basico-mc').style.display = 'none';
+    document.getElementById('panel-avancado-mc').style.display = '';
+    FLT_MC.mode = 'avancado';
+    buildAdvPanelMC();
+    return;
+  }
+
+  document.querySelectorAll('#fb-mc-wrap .filter-tab').forEach(t => { t.disabled = false; t.style.opacity = ''; t.title = ''; });
+
+  el.innerHTML = `<label class="check-item todos-row">
+    <input type="checkbox" id="todos-mc" onchange="toggleTodosMC()"> TODOS (${items.length})
+  </label>` + items.map(it =>
+    `<label class="check-item" data-nome="${it.nome.toLowerCase()}">
+      <input type="checkbox" data-cd-mc="${it.cd}" onchange="toggleItemMC('${it.cd}')"> ${it.nome}
+    </label>`
+  ).join('');
+  const panel = el.closest('.panel-basico');
+  if (panel && !panel.querySelector('.basico-footer')) {
+    const footer = document.createElement('div');
+    footer.className = 'basico-footer';
+    footer.innerHTML = `<button class="btn-limpar-basico" onclick="limparBasicoMC()">Limpar</button>`;
+    panel.appendChild(footer);
+  }
+}
+
+function filtrarBasicoMC(q) {
+  document.querySelectorAll('#cl-mc .check-item:not(.todos-row)').forEach(el => {
+    el.style.display = el.dataset.nome.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function limparBasicoMC() {
+  FLT_MC.sel.clear();
+  document.querySelectorAll('[data-cd-mc]').forEach(cb => cb.checked = false);
+  const todosEl = document.getElementById('todos-mc');
+  if (todosEl) todosEl.checked = true;
+  const searchInp = document.querySelector('#panel-basico-mc .search-input');
+  if (searchInp) { searchInp.value = ''; filtrarBasicoMC(''); }
+  updateBadgeMC();
+}
+
+function toggleTodosMC() {
+  FLT_MC.sel.clear();
+  document.querySelectorAll('[data-cd-mc]').forEach(cb => cb.checked = false);
+  const todosEl = document.getElementById('todos-mc');
+  if (todosEl) todosEl.checked = true;
+  updateBadgeMC();
+}
+
+function toggleItemMC(cd) {
+  const cb = document.querySelector(`[data-cd-mc="${cd}"]`);
+  if (cb.checked) FLT_MC.sel.add(String(cd));
+  else FLT_MC.sel.delete(String(cd));
+  const todosEl = document.getElementById('todos-mc');
+  if (todosEl) todosEl.checked = FLT_MC.sel.size === 0;
+  updateBadgeMC();
+}
+
+function buildAdvPanelMC() {
+  const panel = document.getElementById('panel-avancado-mc');
+  const a = FLT_MC.adv;
+  panel.innerHTML = `
+    <p class="adv-hint" style="padding:8px 12px 0">Mostrar itens cujo <strong>Nome</strong>:</p>
+    <div style="padding:6px 12px 0">
+      <div class="adv-row">
+        <select class="adv-op-select" id="adv-c1op-mc" onchange="onAdvChangeMC()">
+          ${OPS.map(o => `<option value="${o.v}" ${a.c1Op===o.v?'selected':''}>${o.l}</option>`).join('')}
+        </select>
+        <input class="adv-val-input" id="adv-c1val-mc" placeholder="valor..."
+          value="${a.c1Val}" oninput="onAdvChangeMC()"
+          ${OPS_SEM_VALOR.has(a.c1Op)?'disabled':''}>
+      </div>
+
+      <div class="adv-logic" id="adv-logic-mc">
+        <button class="adv-logic-btn ${a.logic==='E'?'active':''}" onclick="setLogicMC('E')">E</button>
+        <button class="adv-logic-btn ${a.logic==='OU'?'active':''}" onclick="setLogicMC('OU')">OU</button>
+      </div>
+
+      <div class="adv-row">
+        <select class="adv-op-select" id="adv-c2op-mc" onchange="onAdvChangeMC()">
+          ${OPS.map(o => `<option value="${o.v}" ${a.c2Op===o.v?'selected':''}>${o.l}</option>`).join('')}
+        </select>
+        <input class="adv-val-input" id="adv-c2val-mc" placeholder="valor (opcional)..."
+          value="${a.c2Val}" oninput="onAdvChangeMC()"
+          ${OPS_SEM_VALOR.has(a.c2Op)?'disabled':''}>
+      </div>
+
+      <div class="adv-match-preview" id="adv-preview-mc"></div>
+
+      <div class="adv-actions" style="margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="aplicarAvancadoMC()">✔ Aplicar filtro</button>
+        <button class="btn btn-ghost btn-sm" onclick="limparAvancadoMC()">Limpar</button>
+      </div>
+    </div>
+  `;
+  refreshAdvPreviewMC();
+}
+
+function onAdvChangeMC() {
+  const a = FLT_MC.adv;
+  a.c1Op  = document.getElementById('adv-c1op-mc').value;
+  a.c1Val = document.getElementById('adv-c1val-mc').value;
+  a.c2Op  = document.getElementById('adv-c2op-mc').value;
+  a.c2Val = document.getElementById('adv-c2val-mc').value;
+  document.getElementById('adv-c1val-mc').disabled = OPS_SEM_VALOR.has(a.c1Op);
+  document.getElementById('adv-c2val-mc').disabled = OPS_SEM_VALOR.has(a.c2Op);
+  refreshAdvPreviewMC();
+}
+
+function setLogicMC(val) {
+  FLT_MC.adv.logic = val;
+  document.querySelectorAll('#adv-logic-mc .adv-logic-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === val);
+  });
+  refreshAdvPreviewMC();
+}
+
+function itensFiltradosAvancadoMC() {
+  return aplicarFiltroAvancado(DIM[FLT_MC.dim] || [], FLT_MC.adv);
+}
+
+function refreshAdvPreviewMC() {
+  const found = itensFiltradosAvancadoMC();
+  const el = document.getElementById('adv-preview-mc');
+  if (!el) return;
+  if (found.length === 0) {
+    el.className = 'adv-match-preview no-match';
+    el.textContent = 'Nenhum item corresponde a esse filtro.';
+  } else {
+    el.className = 'adv-match-preview';
+    const nomes = found.slice(0, 5).map(i => i.nome).join(', ');
+    el.textContent = `${found.length} item(s) corresponde(m): ${nomes}${found.length > 5 ? '...' : ''}`;
+  }
+}
+
+function aplicarAvancadoMC() {
+  FLT_MC.mode = 'avancado';
+  const found = itensFiltradosAvancadoMC();
+  FLT_MC.sel = new Set(found.map(i => String(i.cd)));
+  updateBadgeMC();
+  toast(`Filtro avançado aplicado — ${found.length} item(s)`, 'ok');
+}
+
+function limparAvancadoMC() {
+  FLT_MC.adv = { c1Op:'contem', c1Val:'', logic:'E', c2Op:'contem', c2Val:'' };
+  FLT_MC.mode = 'basico';
+  FLT_MC.sel.clear();
+  switchTabMC('basico', document.querySelector('#fb-mc .filter-tab'));
+  document.querySelectorAll('[data-cd-mc]').forEach(cb => cb.checked = false);
+  const todosEl = document.getElementById('todos-mc');
+  if (todosEl) todosEl.checked = false;
+  updateBadgeMC();
+}
+
+function switchTabMC(tab, btnEl) {
+  btnEl.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  document.getElementById('panel-basico-mc').style.display   = tab === 'basico'   ? '' : 'none';
+  document.getElementById('panel-avancado-mc').style.display = tab === 'avancado' ? '' : 'none';
+  if (tab === 'avancado') buildAdvPanelMC();
+}
+
+function updateBadgeMC() {
+  const el = document.getElementById('badge-mc');
+  const total = (DIM[FLT_MC.dim] || []).length;
+  const n = FLT_MC.sel.size;
+  if (FLT_MC.mode === 'avancado' && n > 0) {
+    const a = FLT_MC.adv;
+    const opLabel = OPS.find(o => o.v === a.c1Op)?.l || a.c1Op;
+    el.textContent = `Avançado: ${opLabel.toLowerCase()} "${a.c1Val || '…'}" (${n})`;
+    el.className = 'filter-badge adv';
+  } else if (n === 0 || n === total) {
+    el.textContent = 'Nenhum (todos)';
+    el.className = 'filter-badge all';
+  } else {
+    el.textContent = `${n} selecionado(s)`;
+    el.className = 'filter-badge';
+  }
+}
+
+// Resolve os itens de uma dimensão a partir de um objeto de filtro {mode,sel,adv}.
+// Diferente de _getDimValoresCompacto (que retorna [''] quando sem filtro — pensado
+// pro produto cartesiano de 6 dimensões de campanha, onde "sem filtro" = "não
+// restringe esse eixo"), aqui "sem filtro" tem que significar "todos os itens da
+// dimensão", igual a resolverDim()/vendedoresDaCampanha().
+function resolverItensMC(dim, fltObj) {
+  const dados = DIM[dim] || [];
+  if (!fltObj) return dados;
+  if (fltObj.mode === 'avancado') return aplicarFiltroAvancado(dados, fltObj.adv);
+  const sel = fltObj.sel instanceof Set ? [...fltObj.sel] : (fltObj.sel || []);
+  if (!sel.length) return dados;
+  return dados.filter(it => sel.includes(String(it.cd)));
+}
+
+function itensDaMetaCorp(mc) {
+  return resolverItensMC(mc.agrupamento, mc.flt);
+}
+
+// ════════════════════════════
+//  METAS CORPORATIVAS — CADASTRO (SALVAR / EDITAR / DUPLICAR / EXCLUIR)
+// ════════════════════════════
+function proximoCodMC() {
+  const usados = new Set(metasCorp.map(m => m.cod).filter(Boolean));
+  let seq = parseInt(localStorage.getItem('ib_mc_seq') || '0');
+  let cod;
+  do {
+    seq++;
+    cod = 'MC' + String(seq).padStart(3, '0');
+  } while (usados.has(cod));
+  localStorage.setItem('ib_mc_seq', String(seq));
+  return cod;
+}
+
+async function mcTemValoresLancados(cod) {
+  const { data, error } = await sb.from('metas_corporativas_valores').select('meta_cod').eq('meta_cod', cod).limit(1);
+  if (error) return false;
+  return !!(data && data.length);
+}
+
+async function salvarMetaCorporativa() {
+  const nome = document.getElementById('mc-inp-nome').value.trim();
+  if (!nome) { toast('Informe o nome da meta', 'err'); return; }
+  const ano = mcAnoVigente;
+  const agrupamento = document.getElementById('mc-inp-agrupamento').value;
+  const desc = document.getElementById('mc-inp-desc').value.trim();
+  const objetivo = document.getElementById('mc-inp-objetivo').value.trim();
+  const agora = new Date().toISOString();
+
+  const mc = {
+    nome, desc, objetivo, ano, agrupamento,
+    flt: { mode: FLT_MC.mode, sel: [...FLT_MC.sel], adv: {...FLT_MC.adv} },
+    criadoEm: agora, alteradoEm: null,
+  };
+
+  if (mcEditIdx !== null) {
+    const prev = metasCorp[mcEditIdx];
+    if (prev.agrupamento !== agrupamento && await mcTemValoresLancados(prev.cod)) {
+      toast('Não é possível trocar o agrupamento de uma meta com valores já lançados. Duplique para criar uma nova.', 'err');
+      return;
+    }
+    mc.cod = prev.cod;
+    mc.criadoEm = prev.criadoEm;
+    mc.alteradoEm = agora;
+    metasCorp[mcEditIdx] = mc;
+    mcEditIdx = null;
+  } else {
+    mc.cod = proximoCodMC();
+    metasCorp.push(mc);
+  }
+
+  localStorage.setItem('ib_metas_corp', JSON.stringify(metasCorp));
+  renderMetasCorporativas();
+  limparFormMC();
+  toast('Meta Corporativa salva!', 'ok');
+  await upsertMetaCorporativaSupabase(mc);
+}
+
+function editarMetaCorporativa(idx) {
+  const mc = metasCorp[idx];
+  mcEditIdx = idx;
+  document.getElementById('mc-inp-nome').value        = mc.nome;
+  document.getElementById('mc-inp-desc').value        = mc.desc || '';
+  document.getElementById('mc-inp-objetivo').value    = mc.objetivo || '';
+  mcAnoVigente = mc.ano;
+  buildYearRowMC();
+  document.getElementById('mc-inp-agrupamento').value = mc.agrupamento;
+
+  FLT_MC = { dim: mc.agrupamento, mode: mc.flt.mode, sel: new Set(mc.flt.sel), adv: {...mc.flt.adv} };
+  document.getElementById('mc-filter-title').textContent = `${MC_AGRUPAMENTO_ICON[mc.agrupamento]} ${MC_AGRUPAMENTO_LABEL[mc.agrupamento]}`;
+  buildCLMC(mc.agrupamento);
+  document.querySelectorAll('[data-cd-mc]').forEach(cb => { cb.checked = FLT_MC.sel.has(cb.dataset.cdMc); });
+  const tot = document.querySelectorAll('[data-cd-mc]').length;
+  const todosEl = document.getElementById('todos-mc');
+  if (todosEl) todosEl.checked = FLT_MC.sel.size === 0 || FLT_MC.sel.size === tot;
+  buildAdvPanelMC();
+  const tabs = document.querySelectorAll('#fb-mc .filter-tab');
+  if (mc.flt.mode === 'avancado' && tabs[1]) switchTabMC('avancado', tabs[1]);
+  else if (tabs[0]) switchTabMC('basico', tabs[0]);
+  updateBadgeMC();
+
+  const banner = document.getElementById('mc-edit-mode-banner');
+  document.getElementById('mc-edit-mode-nome').textContent = mc.nome;
+  document.getElementById('mc-edit-mode-cod').textContent  = mc.cod ? `[${mc.cod}]` : '';
+  banner.style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('Meta Corporativa carregada para edição', '');
+}
+
+async function duplicarMetaCorporativa(idx) {
+  const orig = metasCorp[idx];
+  const novoAnoStr = prompt(`Ano da cópia de "${orig.nome}":`, String(orig.ano + 1));
+  if (!novoAnoStr) return;
+  const novoAno = +novoAnoStr;
+  if (!novoAno) { toast('Ano inválido', 'err'); return; }
+
+  const baseNome = orig.nome.replace(/\s*-\s*COPIA\s+\d+$/i, '');
+  let n = 1;
+  while (metasCorp.some(m => m.nome === `${baseNome} - COPIA ${n}`)) n++;
+  const nomeNovo = `${baseNome} - COPIA ${n}`;
+
+  const copia = {
+    nome: nomeNovo, desc: orig.desc, objetivo: orig.objetivo,
+    ano: novoAno, agrupamento: orig.agrupamento,
+    flt: { mode: orig.flt.mode, sel: [...orig.flt.sel], adv: {...orig.flt.adv} },
+    cod: proximoCodMC(),
+    criadoEm: new Date().toISOString(), alteradoEm: null,
+  };
+  metasCorp.push(copia);
+  localStorage.setItem('ib_metas_corp', JSON.stringify(metasCorp));
+  renderMetasCorporativas();
+  toast(`Meta duplicada como "${nomeNovo}"`, 'ok');
+  await upsertMetaCorporativaSupabase(copia);
+}
+
+async function excluirMetaCorporativa(idx) {
+  if (PERFIL && PERFIL.role !== 'admin') { toast('Apenas administradores podem excluir metas corporativas.', 'err'); return; }
+  if (!confirm(`Excluir "${metasCorp[idx].nome}"?`)) return;
+  const [removida] = metasCorp.splice(idx, 1);
+  localStorage.setItem('ib_metas_corp', JSON.stringify(metasCorp));
+  renderMetasCorporativas();
+  toast('Excluída', '');
+  await excluirMetaCorporativaSupabase(removida.cod);
+}
+
+async function excluirTodasMC() {
+  if (PERFIL && PERFIL.role !== 'admin') { toast('Apenas administradores podem excluir metas corporativas.', 'err'); return; }
+  if (!metasCorp.length) { toast('Nenhuma Meta Corporativa cadastrada', 'err'); return; }
+  if (!confirm(`Excluir TODAS as ${metasCorp.length} Meta(s) Corporativa(s)? Esta ação não pode ser desfeita.`)) return;
+  const cods = metasCorp.map(m => m.cod);
+  metasCorp = [];
+  localStorage.setItem('ib_metas_corp', JSON.stringify(metasCorp));
+  renderMetasCorporativas();
+  toast('Todas as Metas Corporativas excluídas', '');
+  await Promise.all(cods.map(cod => excluirMetaCorporativaSupabase(cod)));
+}
+
+function limparFormMC() {
+  mcEditIdx = null;
+  document.getElementById('mc-inp-nome').value = '';
+  document.getElementById('mc-inp-desc').value = '';
+  document.getElementById('mc-inp-objetivo').value = '';
+  document.getElementById('mc-inp-agrupamento').value = 'vendedor';
+  resetAnoVigenteMC();
+  document.getElementById('mc-edit-mode-banner').style.display = 'none';
+  onAgrupamentoChange('vendedor');
+}
+
+function renderMetasCorporativas() {
+  const el    = document.getElementById('lista-metas-corp');
+  const pagEl = document.getElementById('mc-paginacao');
+
+  const q = mcSearchQ.toLowerCase().trim();
+  const itens = metasCorp.map((m, i) => ({ m, i })).filter(({ m }) =>
+    !q || m.nome.toLowerCase().includes(q) || (m.desc || '').toLowerCase().includes(q)
+  );
+
+  if (!metasCorp.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>Nenhuma Meta Corporativa cadastrada ainda.</p></div>';
+    pagEl.style.display = 'none';
+    return;
+  }
+  if (!itens.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Nenhuma meta encontrada para "<strong>${escHtml(q)}</strong>".</p></div>`;
+    pagEl.style.display = 'none';
+    return;
+  }
+
+  const totalPags = Math.ceil(itens.length / MC_PER_PAGE);
+  if (mcPage >= totalPags) mcPage = Math.max(0, totalPags - 1);
+  const inicio   = mcPage * MC_PER_PAGE;
+  const itensPag = itens.slice(inicio, inicio + MC_PER_PAGE);
+
+  const fmtDt = iso => iso ? new Date(iso).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : null;
+
+  el.innerHTML = itensPag.map(({ m, i }) => {
+    const dados = DIM[m.agrupamento] || [];
+    let filtroStr;
+    if (m.flt.mode === 'avancado' && m.flt.sel.length) {
+      const adv = m.flt.adv || {};
+      const desc = [adv.c1Val, adv.c2Val].filter(Boolean).join(` ${adv.logic || 'E'} `);
+      filtroStr = `<span class="regra-pill"><span class="regra-dim">${MC_AGRUPAMENTO_LABEL[m.agrupamento]}</span> ⚡ ${escHtml(desc || 'filtro avançado')}</span>`;
+    } else if (m.flt.sel.length) {
+      const nomes = m.flt.sel.map(cd => {
+        const item = dados.find(x => String(x.cd) === String(cd));
+        return item ? item.nome : cd;
+      });
+      const label = nomes.length <= 2 ? nomes.join(', ') : `${nomes.slice(0,2).join(', ')} +${nomes.length-2}`;
+      filtroStr = `<span class="regra-pill"><span class="regra-dim">${MC_AGRUPAMENTO_LABEL[m.agrupamento]}</span> ${escHtml(label)}</span>`;
+    } else {
+      filtroStr = `<span style="font-size:11px;color:var(--muted);font-style:italic">Sem filtro — todos os itens (${dados.length})</span>`;
+    }
+
+    const dtCriacao   = fmtDt(m.criadoEm);
+    const dtAlteracao = fmtDt(m.alteradoEm);
+    const dtStr = dtCriacao
+      ? `🗓 Criado: ${dtCriacao}${dtAlteracao ? ` · Editado: ${dtAlteracao}` : ''}`
+      : '';
+
+    return `<div class="campanha-card">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div class="campanha-name">${escHtml(m.nome)}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;min-width:0">
+            ${m.cod ? `<span class="campanha-cod">${escHtml(m.cod)}</span>` : ''}
+            ${m.desc ? `<span class="campanha-desc" style="margin-top:0;flex:1">${escHtml(m.desc)}</span>` : ''}
+          </div>
+        </div>
+        <div class="campanha-btns">
+          <button class="btn btn-ghost btn-sm" onclick="abrirValoresMC('${m.cod}')" title="Lançar valores">🎯 Valores</button>
+          <button class="btn btn-ghost btn-sm" onclick="duplicarMetaCorporativa(${i})" title="Duplicar">⧉</button>
+          <button class="btn btn-ghost btn-sm" onclick="editarMetaCorporativa(${i})" title="Editar">✏️</button>
+          <button class="btn btn-ghost btn-sm only-admin" onclick="excluirMetaCorporativa(${i})" style="color:var(--danger)" title="Excluir">🗑</button>
+        </div>
+      </div>
+      <div class="meses-str">📅 Ano ${m.ano} · ${MC_AGRUPAMENTO_LABEL[m.agrupamento]}</div>
+      <div class="regras-row">${filtroStr}</div>
+      ${dtStr ? `<div class="camp-datas">${dtStr}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  if (totalPags <= 1) {
+    pagEl.style.display = 'none';
+  } else {
+    pagEl.style.display = 'flex';
+    const ini1 = inicio + 1;
+    const fim1 = Math.min(inicio + MC_PER_PAGE, itens.length);
+    pagEl.innerHTML = `
+      <button class="btn btn-ghost btn-sm" onclick="mudarPaginaMC(-1)" ${mcPage === 0 ? 'disabled' : ''}>← Anterior</button>
+      <span class="pag-info">Página ${mcPage + 1} de ${totalPags} &nbsp;·&nbsp; ${ini1}–${fim1} de ${itens.length}</span>
+      <button class="btn btn-ghost btn-sm" onclick="mudarPaginaMC(1)" ${mcPage === totalPags - 1 ? 'disabled' : ''}>Próxima →</button>
+    `;
+  }
+}
+
+function filtrarMetasCorp(q) {
+  mcSearchQ = q;
+  mcPage = 0;
+  renderMetasCorporativas();
+}
+
+function mudarPaginaMC(delta) {
+  const q = mcSearchQ.toLowerCase().trim();
+  const total = metasCorp.filter(m =>
+    !q || m.nome.toLowerCase().includes(q) || (m.desc || '').toLowerCase().includes(q)
+  ).length;
+  const totalPags = Math.ceil(total / MC_PER_PAGE);
+  mcPage = Math.max(0, Math.min(mcPage + delta, totalPags - 1));
+  renderMetasCorporativas();
+  document.getElementById('lista-metas-corp').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// campanha (objeto em memória) → linha da tabela public.metas_corporativas
+function mcToRow(mc, idx) {
+  return {
+    cod: mc.cod, nome: mc.nome, descricao: mc.desc || '', objetivo: mc.objetivo || '',
+    ano: mc.ano, agrupamento: mc.agrupamento, flt: mc.flt, ordem: idx ?? 0,
+    criado_em: mc.criadoEm || new Date().toISOString(), alterado_em: mc.alteradoEm || null,
+    criado_por: PERFIL ? PERFIL.id : null,
+  };
+}
+
+// linha da tabela public.metas_corporativas → objeto em memória
+function rowToMC(r) {
+  return {
+    cod: r.cod, nome: r.nome, desc: r.descricao || '', objetivo: r.objetivo || '',
+    ano: r.ano, agrupamento: r.agrupamento, flt: r.flt,
+    criadoEm: r.criado_em, alteradoEm: r.alterado_em,
+  };
+}
+
+async function upsertMetaCorporativaSupabase(mc) {
+  const idx = metasCorp.indexOf(mc);
+  const { error } = await sb.from('metas_corporativas').upsert(mcToRow(mc, idx));
+  if (error) toast(`Falha ao sincronizar meta corporativa: ${error.message}`, 'err');
+  return !error;
+}
+
+async function excluirMetaCorporativaSupabase(cod) {
+  const { error } = await sb.from('metas_corporativas').delete().eq('cod', cod);
+  if (error) toast(`Falha ao excluir meta corporativa: ${error.message}`, 'err');
+  return !error;
+}
+
+async function carregarMetasCorporativasDoSupabase() {
+  try {
+    const { data, error } = await sb.from('metas_corporativas').select('*').order('ordem', { ascending: true });
+    if (error) throw error;
+    metasCorp = (data || []).map(rowToMC);
+    localStorage.setItem('ib_metas_corp', JSON.stringify(metasCorp));
+  } catch (e) {
+    // Supabase indisponível — mantém metasCorp já carregado do localStorage na declaração de estado
+  }
+}
+
+// ════════════════════════════
 //  GRADE DE METAS (vendedor x mês)
 // ════════════════════════════
 const METAS_MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -12628,6 +13381,200 @@ async function salvarMetas() {
     toast('Erro ao salvar metas: ' + e.message, 'err');
   } finally {
     btn.disabled = false; btn.textContent = '💾 Salvar Metas';
+  }
+}
+
+// ════════════════════════════
+//  METAS CORPORATIVAS — GRADE DE VALORES (item resolvido x mês)
+// ════════════════════════════
+let MC_VALORES_COD   = null;
+let MC_VALORES_DADOS = {};   // { [itemCod]: { [mes]: valor } }
+
+async function abrirValoresMC(cod) {
+  const mc = metasCorp.find(m => m.cod === cod);
+  if (!mc) { toast('Meta Corporativa não encontrada', 'err'); return; }
+
+  MC_VALORES_COD   = cod;
+  MC_VALORES_DADOS = {};
+
+  document.getElementById('mc-valores-nome').textContent = mc.nome;
+  document.getElementById('mc-valores-cod').textContent  = mc.cod ? `[${mc.cod}]` : '';
+  document.getElementById('mc-valores-ano').textContent  = mc.ano;
+  document.getElementById('modal-mc-valores').style.display = 'flex';
+  document.getElementById('mc-valores-table').innerHTML = '<tbody><tr><td style="padding:20px">Carregando…</td></tr></tbody>';
+
+  const { data, error } = await sb.from('metas_corporativas_valores').select('*').eq('meta_cod', cod);
+  if (error) toast('Erro ao carregar valores: ' + error.message, 'err');
+  (data || []).forEach(r => {
+    MC_VALORES_DADOS[r.item_cod] = MC_VALORES_DADOS[r.item_cod] || {};
+    MC_VALORES_DADOS[r.item_cod][r.mes] = Number(r.valor) || 0;
+  });
+
+  renderTabelaMC();
+}
+
+function fecharValoresMC() {
+  document.getElementById('modal-mc-valores').style.display = 'none';
+}
+
+function renderTabelaMC() {
+  const mc = metasCorp.find(m => m.cod === MC_VALORES_COD);
+  if (!mc) return;
+  const readonly = !(PERFIL && PERFIL.role === 'admin');
+  const itens = itensDaMetaCorp(mc);
+
+  const buscaEl = document.getElementById('mc-busca-item');
+  if (buscaEl) buscaEl.value = '';
+
+  const thead = '<thead><tr><th class="vendedor-th">Item</th><th class="codigo-th">Cód.</th>' +
+    METAS_MESES_NOME.map(m => `<th>${m}</th>`).join('') + '<th>Total</th></tr></thead>';
+
+  const totCols = new Array(12).fill(0);
+  let tbody = '<tbody>';
+  itens.forEach(it => {
+    let totalLinha = 0;
+    const buscaTexto = escHtml((String(it.cd) + ' ' + it.nome).toLowerCase());
+    tbody += `<tr data-busca-texto="${buscaTexto}"><td class="vendedor-cell">${escHtml(it.nome)}</td>` +
+      `<td class="codigo-cell">${escHtml(String(it.cd))}</td>`;
+    for (let mes = 1; mes <= 12; mes++) {
+      const valor = (MC_VALORES_DADOS[it.cd] && MC_VALORES_DADOS[it.cd][mes]) || 0;
+      totCols[mes-1] += valor; totalLinha += valor;
+      tbody += `<td><input type="number" step="0.01" class="meta-cell"
+        data-item="${it.cd}" data-mes="${mes}"
+        value="${valor || ''}" ${readonly ? 'disabled' : ''}
+        oninput="onValorMCInput(this)" onkeydown="onValorMCKeydown(event)" onpaste="onValorMCPaste(event)"></td>`;
+    }
+    tbody += `<td style="text-align:right;padding:6px 8px;font-weight:600">${totalLinha ? totalLinha.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr>`;
+  });
+  tbody += '</tbody>';
+
+  const grand = totCols.reduce((a,b) => a+b, 0);
+  const tfoot = '<tfoot><tr class="total-row"><td class="vendedor-cell">Total</td><td class="codigo-cell"></td>' +
+    totCols.map(t => `<td style="text-align:right;padding:6px 8px">${t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td>`).join('') +
+    `<td style="text-align:right;padding:6px 8px">${grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}</td></tr></tfoot>`;
+
+  document.getElementById('mc-valores-table').innerHTML = thead + tbody + tfoot;
+}
+
+function filtrarBuscaMC(q) {
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('#mc-valores-table tbody tr').forEach(tr => {
+    const texto = tr.dataset.buscaTexto || '';
+    tr.style.display = !query || texto.includes(query) ? '' : 'none';
+  });
+}
+
+function onValorMCInput(el) {
+  const item = el.dataset.item;
+  const mes  = +el.dataset.mes;
+  const v = parseFloat((el.value || '0').replace(',', '.')) || 0;
+  MC_VALORES_DADOS[item] = MC_VALORES_DADOS[item] || {};
+  MC_VALORES_DADOS[item][mes] = v;
+  atualizarTotaisMC();
+}
+
+// Recalcula só os totais (evita re-renderizar a tabela inteira e perder o foco do input)
+function atualizarTotaisMC() {
+  const table = document.getElementById('mc-valores-table');
+  const rows = [...table.querySelectorAll('tbody tr')];
+  const totCols = new Array(12).fill(0);
+  rows.forEach(row => {
+    const inputs = [...row.querySelectorAll('input.meta-cell')];
+    let totalLinha = 0;
+    inputs.forEach((inp, i) => {
+      const val = parseFloat((inp.value || '0').replace(',', '.')) || 0;
+      totCols[i] += val;
+      totalLinha += val;
+    });
+    const totalCell = row.querySelector('td:last-child');
+    if (totalCell) totalCell.textContent = totalLinha ? totalLinha.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
+  });
+  const footRow = table.querySelector('tfoot tr');
+  if (footRow) {
+    const footCells = [...footRow.querySelectorAll('td')].slice(2);
+    totCols.forEach((t, i) => { if (footCells[i]) footCells[i].textContent = t ? t.toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''; });
+    const grand = totCols.reduce((a,b) => a+b, 0);
+    if (footCells[12]) footCells[12].textContent = grand ? grand.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
+  }
+}
+
+// Navegação estilo planilha: Enter/setas move o foco verticalmente na mesma coluna
+function onValorMCKeydown(e) {
+  if (!['Enter','ArrowDown','ArrowUp'].includes(e.key)) return;
+  e.preventDefault();
+  const el = e.target;
+  const table = document.getElementById('mc-valores-table');
+  const row = el.closest('tr');
+  const allRows = [...table.querySelectorAll('tbody tr')];
+  const rowIdx = allRows.indexOf(row);
+  const colIdx = [...row.querySelectorAll('input.meta-cell')].indexOf(el);
+  const delta = e.key === 'ArrowUp' ? -1 : 1;
+  const nextRow = allRows[rowIdx + delta];
+  if (!nextRow) return;
+  const nextInput = nextRow.querySelectorAll('input.meta-cell')[colIdx];
+  if (nextInput && !nextInput.disabled) nextInput.focus();
+}
+
+// Cola um bloco de células copiado do Excel (delimitado por tab/quebra de linha)
+function onValorMCPaste(e) {
+  const el = e.target;
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
+  e.preventDefault();
+  const linhas = text.replace(/\r/g, '').split('\n').filter(l => l.length);
+  const table = document.getElementById('mc-valores-table');
+  const startRow = el.closest('tr');
+  const allRows = [...table.querySelectorAll('tbody tr')];
+  const startRowIdx = allRows.indexOf(startRow);
+  const startCellIdx = [...startRow.querySelectorAll('input.meta-cell')].indexOf(el);
+  linhas.forEach((linha, ri) => {
+    const row = allRows[startRowIdx + ri];
+    if (!row) return;
+    const inputs = [...row.querySelectorAll('input.meta-cell')];
+    linha.split('\t').forEach((val, ci) => {
+      const input = inputs[startCellIdx + ci];
+      if (!input || input.disabled) return;
+      const num = parseFloat(val.replace(',', '.')) || 0;
+      input.value = num || '';
+      onValorMCInput(input);
+    });
+  });
+  toast('Valores colados', 'ok');
+}
+
+async function salvarValoresMC() {
+  if (!(PERFIL && PERFIL.role === 'admin')) { toast('Apenas administradores podem salvar valores.', 'err'); return; }
+  const mc = metasCorp.find(m => m.cod === MC_VALORES_COD);
+  if (!mc) return;
+
+  const rows = [];
+  for (const it of itensDaMetaCorp(mc)) {
+    const porMes = MC_VALORES_DADOS[it.cd];
+    if (!porMes) continue;
+    for (const mesStr of Object.keys(porMes)) {
+      rows.push({
+        meta_cod: mc.cod, item_cod: String(it.cd), item_nome: it.nome,
+        ano: mc.ano, mes: +mesStr, valor: porMes[mesStr] || 0,
+        atualizado_em: new Date().toISOString(), atualizado_por: PERFIL.id,
+      });
+    }
+  }
+  if (!rows.length) { toast('Nenhum valor para salvar.', 'err'); return; }
+
+  const btn = document.getElementById('btn-salvar-mc-valores');
+  btn.disabled = true; btn.textContent = '⏳ Salvando…';
+  try {
+    const CHUNK = 500;
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      const { error } = await sb.from('metas_corporativas_valores')
+        .upsert(rows.slice(i, i + CHUNK), { onConflict: 'meta_cod,item_cod,mes' });
+      if (error) throw error;
+    }
+    toast(`✓ Valores salvos (${rows.length} registro(s))`, 'ok');
+  } catch (e) {
+    toast('Erro ao salvar valores: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar Valores';
   }
 }
 
@@ -12990,6 +13937,77 @@ async function publicarSupabase() {
     console.error('[publicarSupabase]', e);
   } finally {
     _setBtnsPublicar('☁️ Publicar', false);
+  }
+}
+
+// Busca, para cada Meta Corporativa, os meses "YYYY-MM" que têm valor lançado
+// (valor > 0) em metas_corporativas_valores — mesmo princípio de
+// buscarMesesAtivosPorCampanha(), paginado pela mesma razão (limite de 1000
+// linhas por select() do Supabase).
+async function buscarMesesAtivosPorMetaCorp() {
+  const mapa = new Map(); // cod_meta -> Set(mes:number)
+  const PAGE = 1000;
+  let offset = 0;
+  while (true) {
+    const { data, error } = await sb.from('metas_corporativas_valores')
+      .select('meta_cod,mes,valor')
+      .gt('valor', 0)
+      .range(offset, offset + PAGE - 1);
+    if (error) throw error;
+    if (!data.length) break;
+    for (const r of data) {
+      if (!mapa.has(r.meta_cod)) mapa.set(r.meta_cod, new Set());
+      mapa.get(r.meta_cod).add(r.mes);
+    }
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
+  return mapa;
+}
+
+// Reconstrói metas_corporativas_expandidas do zero — mesmo padrão de
+// publicarSupabase() (delete-all + insert em chunks), mas sem produto
+// cartesiano: uma Meta Corporativa só varia em UMA dimensão, então é um
+// .map() simples (item resolvido x mês ativo), não um combos.flatMap.
+async function publicarMetasCorporativas() {
+  if (!metasCorp.length) { toast('Nenhuma Meta Corporativa cadastrada.', 'err'); return; }
+
+  try {
+    const mapaMesesAtivos = await buscarMesesAtivosPorMetaCorp();
+    const linhas = [];
+
+    metasCorp.forEach(mc => {
+      const itens = itensDaMetaCorp(mc);
+      const meses = [...(mapaMesesAtivos.get(mc.cod) || [])].sort((a,b) => a-b);
+      for (const mes of meses) {
+        const dtRef = `${mc.ano}-${String(mes).padStart(2,'0')}-01`;
+        for (const it of itens) {
+          linhas.push({
+            cod_meta: mc.cod, meta: mc.nome, descricao: mc.desc || '', objetivo: mc.objetivo || '',
+            agrupamento: mc.agrupamento, ano: mc.ano,
+            dt_cadastro: fmtDtExport(mc.criadoEm), dt_ultima_modif: fmtDtExport(mc.alteradoEm),
+            dt_ref: dtRef, item_cod: String(it.cd), item_nome: it.nome,
+          });
+        }
+      }
+    });
+
+    const rows = metasCorp.map((m, i) => mcToRow(m, i));
+    const { error: errMC } = await sb.from('metas_corporativas').upsert(rows);
+    if (errMC) throw errMC;
+
+    const { error: errDel } = await sb.from('metas_corporativas_expandidas').delete().not('id', 'is', null);
+    if (errDel) throw errDel;
+    const CHUNK = 500;
+    for (let i = 0; i < linhas.length; i += CHUNK) {
+      const { error: errIns } = await sb.from('metas_corporativas_expandidas').insert(linhas.slice(i, i + CHUNK));
+      if (errIns) throw errIns;
+    }
+
+    toast(`✓ ${linhas.length} linha(s) publicadas em metas_corporativas_expandidas`, 'ok');
+  } catch (e) {
+    toast(`Erro ao publicar: ${e.message}`, 'err');
+    console.error('[publicarMetasCorporativas]', e);
   }
 }
 
