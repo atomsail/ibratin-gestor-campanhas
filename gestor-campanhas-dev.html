@@ -13868,8 +13868,6 @@ async function buscarMesesAtivosPorCampanha() {
 // Reconstrói regras_expandidas com o grão do CSV atual, direto no Supabase
 // (reaproveita 100% de _gerarLinhasCompactas — evita reimplementar os filtros em SQL).
 async function publicarSupabase() {
-  if (!campanhas.length) { toast('Nenhuma campanha cadastrada.', 'err'); return; }
-
   _setBtnsPublicar('⏳ Publicando…', true);
   try {
     const DIMS = ['canal','segmento','empresa','vendedor','produto','grupo'];
@@ -13911,11 +13909,15 @@ async function publicarSupabase() {
       }
     }
 
-    // 1. Sincroniza a tabela de regras (campanhas + ordem)
-    _setBtnsPublicar('⏳ Sincronizando regras…', true);
-    const rows = campanhas.map((c, i) => campToRow(c, i));
-    const { error: errCamp } = await sb.from('campanhas').upsert(rows);
-    if (errCamp) throw errCamp;
+    // 1. Sincroniza a tabela de regras (campanhas + ordem) — pula se não há mais
+    // campanhas (ex.: "Excluir todas"), mas segue para o delete-all abaixo, senão
+    // regras_expandidas fica com linhas órfãs de campanhas já excluídas.
+    if (campanhas.length) {
+      _setBtnsPublicar('⏳ Sincronizando regras…', true);
+      const rows = campanhas.map((c, i) => campToRow(c, i));
+      const { error: errCamp } = await sb.from('campanhas').upsert(rows);
+      if (errCamp) throw errCamp;
+    }
 
     // 2. Recria regras_expandidas do zero (grão idêntico ao CSV publicado hoje)
     _setBtnsPublicar('⏳ Publicando regras…', true);
@@ -13970,8 +13972,6 @@ async function buscarMesesAtivosPorMetaCorp() {
 // cartesiano: uma Meta Corporativa só varia em UMA dimensão, então é um
 // .map() simples (item resolvido x mês ativo), não um combos.flatMap.
 async function publicarMetasCorporativas() {
-  if (!metasCorp.length) { toast('Nenhuma Meta Corporativa cadastrada.', 'err'); return; }
-
   try {
     const mapaMesesAtivos = await buscarMesesAtivosPorMetaCorp();
     const linhas = [];
@@ -13992,9 +13992,15 @@ async function publicarMetasCorporativas() {
       }
     });
 
-    const rows = metasCorp.map((m, i) => mcToRow(m, i));
-    const { error: errMC } = await sb.from('metas_corporativas').upsert(rows);
-    if (errMC) throw errMC;
+    // Se não há mais Metas Corporativas cadastradas (ex.: "Excluir todas"), pula o
+    // upsert (upsert de array vazio não faz sentido) mas segue para o delete-all
+    // abaixo — senão metas_corporativas_expandidas fica com linhas órfãs de metas
+    // já excluídas, já que só o Publicar reconstrói essa tabela do zero.
+    if (metasCorp.length) {
+      const rows = metasCorp.map((m, i) => mcToRow(m, i));
+      const { error: errMC } = await sb.from('metas_corporativas').upsert(rows);
+      if (errMC) throw errMC;
+    }
 
     const { error: errDel } = await sb.from('metas_corporativas_expandidas').delete().not('id', 'is', null);
     if (errDel) throw errDel;
