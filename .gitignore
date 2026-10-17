@@ -1,0 +1,13 @@
+# Artefatos gerados pelos scripts (não devem ir pro git)
+scripts/config.ini
+scripts/dim_relacoes.json
+scripts/dims_ibratin.json
+scripts/.upload_sessions.json
+
+# Python
+__pycache__/
+*.pyc
+
+# SO
+Thumbs.db
+.DS_Store

@@ -13,16 +13,25 @@ repositório (`github.com/atomsail/ibratin-gestor-campanhas`, branch `main`).
 ## Estrutura
 
 ```
-gestor-campanhas.html       Aplicação principal (produção)
-gestor-campanhas-dev.html   Cópia idêntica usada como ambiente de teste antes
-                             de promover mudanças para gestor-campanhas.html
 index.html                  Redirect estático para gestor-campanhas.html
-                             (raiz do GitHub Pages)
-exportar_dims_pbi.py        Lê as dimensões do Power BI Desktop (aberto) e
-                             grava direto em gestor-campanhas.html
-gerar_relacoes.py           Lê combinações válidas de dimensão no Power BI
-                             Desktop e publica dim_relacoes.json
-supabase_metas_corporativas.sql
+                             (raiz do GitHub Pages — não mover)
+gestor-campanhas.html       Aplicação principal (produção, raiz — não mover)
+config.js                   SUPABASE_URL e SUPABASE_ANON_KEY (ver "Credenciais" abaixo)
+
+dev/
+  gestor-campanhas-dev.html Cópia idêntica usada como ambiente de teste antes
+                             de promover mudanças para gestor-campanhas.html
+
+scripts/
+  exportar_dims_pbi.py      Lê as dimensões do Power BI Desktop (aberto) e
+                             grava direto em ../gestor-campanhas.html
+  gerar_relacoes.py         Lê combinações válidas de dimensão no Power BI
+                             Desktop e publica dim_relacoes.json [LEGADO, ver abaixo]
+  config.ini                Credenciais usadas pelos scripts (git-ignored)
+  config.ini.example        Template do config.ini, sem segredo real
+
+sql/
+  supabase_metas_corporativas.sql
                              DDL das tabelas de Metas Corporativas — roda
                              manualmente no SQL Editor do Supabase, não é
                              executado automaticamente por nada neste repo
@@ -31,6 +40,19 @@ supabase_metas_corporativas.sql
 Não há bundler nem etapa de build — edite o `.html` direto e abra no
 navegador (ou sirva com `python -m http.server` para testar login/sessão
 sem as inconsistências de abrir via `file://`).
+
+## Credenciais
+
+- **Supabase URL + anon key** — em `config.js`, carregado antes do script
+  principal em `gestor-campanhas.html`/`dev/gestor-campanhas-dev.html`. É a
+  chave **anon**, pública por design e protegida por RLS no banco — como é um
+  site estático sem backend, ela necessariamente chega ao navegador de algum
+  jeito; `config.js` só existe para isolar isso da lógica do app, não para
+  "escondê-la" (não dá pra esconder de verdade sem um backend).
+- **Webhook N8N** (`gerar_relacoes.py`, fluxo legado — ver seção abaixo) —
+  em `scripts/config.ini` (git-ignored). Copie `scripts/config.ini.example`
+  para `scripts/config.ini` e preencha `[n8n] write_url` antes de rodar o
+  script.
 
 ## Arquitetura
 
@@ -44,7 +66,7 @@ confiável de gerar essa tabela, porque reaproveita a mesma lógica de
 expansão de filtros já testada no app (nunca reimplementar essa lógica em
 outra linguagem).
 
-`gestor-campanhas-dev.html` e `gestor-campanhas.html` hoje têm o mesmo
+`dev/gestor-campanhas-dev.html` e `gestor-campanhas.html` hoje têm o mesmo
 conteúdo — o primeiro serve como ambiente de teste antes de promover uma
 mudança para produção (basta sobrescrever `gestor-campanhas.html` com a
 cópia validada).
@@ -74,25 +96,28 @@ Python, no terminal:
 
 1. Abra o Power BI Desktop com o `Comercial.pbip` carregado e aguarde o
    refresh completo dos dados.
-2. Rode `python exportar_dims_pbi.py`. Ele lê as dimensões (canal, segmento,
-   grupo, produto, empresa, vendedor) do modelo aberto e grava
+2. Rode `python scripts/exportar_dims_pbi.py`. Ele lê as dimensões (canal,
+   segmento, grupo, produto, empresa, vendedor) do modelo aberto e grava
    automaticamente dentro de `gestor-campanhas.html` (bloco `const DIM =
-   {...}`), além de salvar uma cópia em `dims_ibratin.json` como conferência.
-3. Ainda com o mesmo modelo aberto, rode `python gerar_relacoes.py`. Ele
-   recalcula quais combinações de Canal/Segmento/Empresa/Vendedor/Grupo
-   realmente existem nos dados (usadas para travar opções incompatíveis nos
-   filtros) e salva em `dim_relacoes.json`.
+   {...}`), além de salvar uma cópia em `scripts/dims_ibratin.json` como
+   conferência.
+3. Ainda com o mesmo modelo aberto, rode `python scripts/gerar_relacoes.py`
+   (fluxo legado, ver aviso abaixo).
 4. Confira `git status`, revise o diff e commit + push para `main` — o
    GitHub Pages só serve o conteúdo depois do push.
 5. Dê F5 na aplicação publicada para conferir que os filtros vieram
    atualizados.
 
-**Atenção — pendência conhecida:** o app lê `dim_relacoes.json` de um bucket
-público do Supabase Storage (`.../storage/v1/object/public/relacoes/`), mas
-`gerar_relacoes.py` hoje ainda publica esse arquivo só no OneDrive (via N8N,
-arquitetura antiga). Ou seja, o passo 3 acima **não atualiza de fato** o que
-o app usa até esse script ser ajustado para subir o arquivo também no
-Supabase Storage.
+**Atenção — pendência conhecida:** `gerar_relacoes.py` é de uma arquitetura
+antiga — ele publica `dim_relacoes.json` no OneDrive via um webhook N8N, mas
+o app atual lê esse arquivo de um bucket público do Supabase Storage
+(`.../storage/v1/object/public/relacoes/dim_relacoes.json`). Esse bucket
+**ainda não existe** (confirmado em 2026-10-17 — a URL retorna "Bucket not
+found"), então o passo 3 acima não atualiza de fato o que o app usa, e o
+cross-filter de relações está efetivamente inoperante em produção. A versão
+atual do projeto não usa mais N8N/OneDrive para nada além disso — o conserto
+real é reescrever `gerar_relacoes.py` para publicar direto no Supabase
+Storage, ainda não feito.
 
 Se estiver testando fora do Power BI Desktop (ex: contra a cópia publicada
 no GitHub Pages), ajuste `dims_ibratin.json`/`dim_relacoes.json` manualmente
@@ -106,8 +131,8 @@ atualizado, mais a biblioteca ADOMD.NET instalada (os scripts detectam
 sozinhos o caminho da DLL e a porta local do Analysis Services).
 
 ```bash
-python exportar_dims_pbi.py   # atualiza as dimensões em gestor-campanhas.html
-python gerar_relacoes.py      # atualiza dim_relacoes.json
+python scripts/exportar_dims_pbi.py   # atualiza as dimensões em gestor-campanhas.html
+python scripts/gerar_relacoes.py      # [legado] atualiza dim_relacoes.json, publica via N8N
 ```
 
 Não há testes automatizados. Para validar mudanças no HTML, abra o arquivo

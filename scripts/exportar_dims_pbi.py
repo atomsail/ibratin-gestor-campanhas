@@ -20,8 +20,9 @@ Sem dependencias extras alem de Python 3.8+.
 import os, re, json, sys, glob, subprocess, tempfile
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 OUTPUT_JSON = os.path.join(SCRIPT_DIR, "dims_ibratin.json")
-HTML_PATH   = os.path.join(SCRIPT_DIR, "gestor-campanhas.html")
+HTML_PATH   = os.path.join(PROJECT_DIR, "gestor-campanhas.html")
 
 # ADOMD.NET DLL — detectada na maquina
 ADOMD_CANDIDATES = [

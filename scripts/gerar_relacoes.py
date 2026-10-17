@@ -5,19 +5,42 @@ Extrai combinações únicas de dimensões (CANAL × SEGMENTO × EMPRESA × VEND
 do fFaturamento via Analysis Services local do Power BI Desktop.
 Gera dim_relacoes.json localmente e publica no OneDrive via N8N.
 
+[LEGADO] Esse fluxo de publicação (N8N -> OneDrive) é de uma arquitetura antiga.
+A versão atual do projeto usa só Supabase, e o app já espera ler dim_relacoes.json
+de um bucket do Supabase Storage ("relacoes") que ainda não existe. Esse script não
+foi adaptado para publicar lá — pendente de revisão antes de confiar nele em produção.
+
 Pré-requisito
     Power BI Desktop aberto com Comercial.pbip (modelo carregado e atualizado)
+    scripts/config.ini com a seção [n8n] (copie de config.ini.example)
 
 Uso
     python gerar_relacoes.py
 """
 
-import os, json, sys, subprocess, tempfile, urllib.request, urllib.parse
+import configparser, os, json, sys, subprocess, tempfile, urllib.request, urllib.parse
 from datetime import datetime
 
-SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_JSON   = os.path.join(SCRIPT_DIR, "dim_relacoes.json")
-N8N_WRITE_URL = "https://n8n.xperiun.com/webhook/ibratin-campanhas"
+SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_JSON = os.path.join(SCRIPT_DIR, "dim_relacoes.json")
+CONFIG_PATH = os.path.join(SCRIPT_DIR, "config.ini")
+
+
+def _carregar_n8n_write_url() -> str:
+    if not os.path.isfile(CONFIG_PATH):
+        raise RuntimeError(
+            f"Config não encontrado: {CONFIG_PATH}\n"
+            "Copie scripts/config.ini.example para scripts/config.ini e preencha [n8n] write_url."
+        )
+    cfg = configparser.ConfigParser()
+    cfg.read(CONFIG_PATH, encoding="utf-8")
+    try:
+        return cfg["n8n"]["write_url"]
+    except KeyError:
+        raise RuntimeError(f"[n8n] write_url não definido em {CONFIG_PATH}")
+
+
+N8N_WRITE_URL = _carregar_n8n_write_url()
 
 # Importa utilitários do script de dimensões existente (porta AS + caminho ADOMD)
 sys.path.insert(0, SCRIPT_DIR)

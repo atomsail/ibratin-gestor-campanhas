@@ -1,0 +1,6 @@
+; Copie este arquivo para config.ini (git-ignored) e preencha com os valores reais.
+
+[n8n]
+; Webhook de escrita usado por gerar_relacoes.py para publicar dim_relacoes.json no OneDrive.
+; LEGADO — ver aviso no topo de gerar_relacoes.py.
+write_url = https://n8n.example.com/webhook/REPLACE-ME
