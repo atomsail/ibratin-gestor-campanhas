@@ -151,10 +151,10 @@ function TentarDAX([string]$Dax) {
 
 $result = [ordered]@{
     canal    = RunDAX('EVALUATE DISTINCT(SELECTCOLUMNS(fFaturamento,"CANAL",fFaturamento[CANAL])) ORDER BY [CANAL]')
-    segmento = RunDAX('EVALUATE DISTINCT(SELECTCOLUMNS(fFaturamento,"SEGMENTO",fFaturamento[SEGMENTO])) ORDER BY [SEGMENTO]')
+    segmento = TentarDAX('EVALUATE SUMMARIZE(dSegmento, dSegmento[CODSEGMENTO], dSegmento[SEGMENTO]) ORDER BY dSegmento[SEGMENTO]')
     grupo    = RunDAX('EVALUATE SUMMARIZE(dProdutos, dProdutos[Grupo Produto])')
     produto  = RunDAX('EVALUATE SUMMARIZE(dProdutos, dProdutos[Produto], dProdutos[DESCRICAO], dProdutos[Grupo Produto])')
-    empresa  = TentarDAX('EVALUATE DISTINCT(SELECTCOLUMNS(fFaturamento,"EMPRESA",fFaturamento[EMPRESA])) ORDER BY [EMPRESA]')
+    empresa  = TentarDAX('EVALUATE SUMMARIZE(dEmpresa, dEmpresa[CODFIL], dEmpresa[EMPRESA]) ORDER BY dEmpresa[EMPRESA]')
     vendedor = TentarDAX('EVALUATE DISTINCT(SELECTCOLUMNS(fFaturamento,"VENDEDOR",fFaturamento[VENDEDOR])) ORDER BY [VENDEDOR]')
 }
 
@@ -242,9 +242,20 @@ def processar_dims(raw: dict) -> dict:
                 result.append({"cd": str(i), "nome": nome})
         return result
 
+    def cod_nome(rows, campo_cod, campo_nome):
+        """Para dimensoes com codigo proprio (dEmpresa[CODFIL], dSegmento[CODSEGMENTO]):
+        usa o codigo real da dimensao em vez de uma posicao sequencial."""
+        result = []
+        for r in rows or []:
+            cd   = _valor_por_col(r, campo_cod)
+            nome = _valor_por_col(r, campo_nome) or _primeiro_valor(r)
+            if nome:
+                result.append({"cd": cd or nome, "nome": nome})
+        return result
+
     canal    = simples(raw.get("canal"),    "CANAL")
-    segmento = simples(raw.get("segmento"), "SEGMENTO")
-    empresa  = simples(raw.get("empresa"),  "EMPRESA")
+    segmento = cod_nome(raw.get("segmento"), "CODSEGMENTO", "SEGMENTO")
+    empresa  = cod_nome(raw.get("empresa"),  "CODFIL",      "EMPRESA")
     vendedor = simples(raw.get("vendedor"), "VENDEDOR")
 
     grupo = []
@@ -307,15 +318,16 @@ def _gerar_dim_js(dims: dict) -> str:
         linhas = [f"    {{ cd:'{_escape_js(it['cd'])}', nome:'{_escape_js(it['nome'])}', grupo:{it['grupo']} }}" for it in items]
         return "[\n" + ",\n".join(linhas) + "\n  ]"
 
-    emp_info = f"{len(empresa)} empresas" if empresa else "empresa: sem dados (campo nao encontrado em fFaturamento[EMPRESA])"
+    seg_info = f"{len(segmento)} segmentos" if segmento else "segmento: sem dados (tabela dSegmento nao encontrada)"
+    emp_info = f"{len(empresa)} empresas" if empresa else "empresa: sem dados (tabela dEmpresa nao encontrada)"
     vnd_info = f"{len(vendedor)} vendedores" if vendedor else "vendedor: sem dados (campo nao encontrado em fFaturamento[VENDEDOR])"
 
     return (
         "// ════════════════════════════\n"
         "//  DIMENSOES — gerado por exportar_dims_pbi.py\n"
         f"//  Fonte: Power BI Desktop (AS local)\n"
-        f"//  ({len(canal)} canais, {len(segmento)} segmentos, {len(grupo)} grupos, {len(produto)} produtos)\n"
-        f"//  ({emp_info}, {vnd_info})\n"
+        f"//  ({len(canal)} canais, {len(grupo)} grupos, {len(produto)} produtos)\n"
+        f"//  ({seg_info}, {emp_info}, {vnd_info})\n"
         "// ════════════════════════════\n"
         "const DIM = {\n"
         f"  canal:    {lista_simples(canal)},\n"
@@ -431,10 +443,10 @@ def main():
     print("  CONCLUIDO")
     print("=" * 60)
     print(f"  Canais:    {len(dims['canal'])}")
-    print(f"  Segmentos: {len(dims['segmento'])}")
     print(f"  Grupos:    {len(dims['grupo'])}")
     print(f"  Produtos:  {len(dims['produto'])}")
-    print(f"  Empresas:  {len(dims.get('empresa', []))} {'(campo fFaturamento[EMPRESA] nao encontrado — preencha manualmente)' if not dims.get('empresa') else ''}")
+    print(f"  Segmentos: {len(dims['segmento'])} {'(tabela dSegmento nao encontrada — preencha manualmente)' if not dims.get('segmento') else ''}")
+    print(f"  Empresas:  {len(dims.get('empresa', []))} {'(tabela dEmpresa nao encontrada — preencha manualmente)' if not dims.get('empresa') else ''}")
     print(f"  Vendedores:{len(dims.get('vendedor', []))} {'(campo fFaturamento[VENDEDOR] nao encontrado — preencha manualmente)' if not dims.get('vendedor') else ''}")
     print("")
     if html_ok:
