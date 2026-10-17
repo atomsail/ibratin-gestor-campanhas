@@ -1,3 +1,6 @@
+# Script pontual de seed/teste do Supabase (não versionado)
+sql/seed_teste.sql
+
 # Artefatos gerados pelos scripts (não devem ir pro git)
 scripts/config.ini
 scripts/dim_relacoes.json
