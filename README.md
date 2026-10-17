@@ -3,7 +3,9 @@
 Aplicação web de página única (HTML + CSS + JS puro, sem build) para definir
 regras de campanhas de vendas ("campanhas") — filtros por Canal, Segmento,
 Grupo de Produto, Produto, Empresa e Vendedor, cruzados com meses de vigência
-— que depois alimentam um modelo Power BI.
+— e Metas Corporativas — metas por uma única dimensão (ex: faturamento por
+vendedor no ano), independentes de campanha — que depois alimentam um modelo
+Power BI.
 
 Deploy: `atomsail.github.io/ibratin-gestor-campanhas/` a partir deste
 repositório (`github.com/atomsail/ibratin-gestor-campanhas`, branch `main`).
@@ -20,6 +22,10 @@ exportar_dims_pbi.py        Lê as dimensões do Power BI Desktop (aberto) e
                              grava direto em gestor-campanhas.html
 gerar_relacoes.py           Lê combinações válidas de dimensão no Power BI
                              Desktop e publica dim_relacoes.json
+supabase_metas_corporativas.sql
+                             DDL das tabelas de Metas Corporativas — roda
+                             manualmente no SQL Editor do Supabase, não é
+                             executado automaticamente por nada neste repo
 ```
 
 Não há bundler nem etapa de build — edite o `.html` direto e abra no
@@ -42,6 +48,23 @@ outra linguagem).
 conteúdo — o primeiro serve como ambiente de teste antes de promover uma
 mudança para produção (basta sobrescrever `gestor-campanhas.html` com a
 cópia validada).
+
+### Metas Corporativas
+
+Segunda aba do app ("🎯 Metas Corporativas"), para metas que variam numa
+única dimensão (canal, segmento, grupo, produto, empresa ou vendedor) — ex:
+"faturamento por vendedor em 2026" — sem estar amarrada a uma campanha.
+Segue o mesmo padrão de CRUD/edição/duplicação/exclusão e o mesmo fluxo de
+"salvar local → sincronizar Supabase" das campanhas.
+
+Backend em três tabelas próprias (DDL em `supabase_metas_corporativas.sql`,
+rode manualmente no SQL Editor do Supabase):
+
+- `metas_corporativas` — definição da meta (nome, ano, agrupamento, filtro).
+- `metas_corporativas_valores` — valor por item resolvido × mês.
+- `metas_corporativas_expandidas` — grão item×mês que o Dataflow do Power BI
+  lê via PostgREST; reconstruída do zero pelo botão **"☁️ Publicar"** dessa
+  aba, no mesmo padrão de `regras_expandidas`.
 
 ## Como atualizar os filtros (dimensões + combinações válidas)
 
