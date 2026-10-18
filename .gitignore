@@ -1,6 +1,7 @@
 # Scripts pontuais de seed/correção de teste do Supabase (não versionados)
 sql/seed_teste.sql
 sql/fix_codigos_teste.sql
+sql/fix_c009_vendedor.sql
 
 # Artefatos gerados pelos scripts (não devem ir pro git)
 scripts/config.ini
